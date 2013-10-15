@@ -442,11 +442,11 @@
 
 #pragma mark Query Parameters
 
-- (NSDictionary *)queryParameters;
+- (NSDictionary *)queryParametersWithOptions:(KSURLComponentsQueryParameterDecodingOptions)options;
 {
     __block NSMutableDictionary *result = [NSMutableDictionary dictionary];
     
-    [self enumerateQueryParametersUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
+    [self enumerateQueryParametersWithOptions:options usingBlock:^(NSString *key, NSString *value, BOOL *stop) {
         
         // Bail if doesn't fit dictionary paradigm
         if (!value || [result objectForKey:key])
@@ -462,7 +462,7 @@
     return result;
 }
 
-- (void)setQueryParameters:(NSDictionary *)parameters;
+- (void)setQueryParameters:(NSDictionary *)parameters options:(NSUInteger)options;
 {
     if (!parameters)
     {
@@ -512,7 +512,7 @@
     self.percentEncodedQuery = query;
 }
 
-- (void)enumerateQueryParametersUsingBlock:(void (^)(NSString *, NSString *, BOOL *))block;
+- (void)enumerateQueryParametersWithOptions:(KSURLComponentsQueryParameterDecodingOptions)options usingBlock:(void (^)(NSString *key, NSString *value, BOOL *stop))block;
 {
     BOOL stop = NO;
     
@@ -547,6 +547,12 @@
         else
         {
             stop = YES;
+        }
+        
+        if (options & KSURLComponentsQueryParameterDecodingPlusAsSpace)
+        {
+            key = [key stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+            value = [value stringByReplacingOccurrencesOfString:@"+" withString:@" "];
         }
         
         block([key stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding],

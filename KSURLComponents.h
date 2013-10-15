@@ -26,6 +26,7 @@
 
 #import <Foundation/Foundation.h>
 
+
 @interface KSURLComponents : NSObject <NSCopying>
 {
   @private
@@ -80,6 +81,10 @@
 
 #pragma mark Query Parameters
 
+typedef NS_OPTIONS(NSUInteger, KSURLComponentsQueryParameterDecodingOptions) {
+    KSURLComponentsQueryParameterDecodingPlusAsSpace = 1UL << 0,    // + characters are interpreted as spaces, rather than regular + symbols
+};
+
 /**
  Converts between `.query` strings and their dictionary representation.
  
@@ -91,14 +96,33 @@
  
      @{ @"key" : @"value", @"foo" : @"bar" }
  
- and vice versa. Keys and values are percent decoded for your convenience.
+ Keys and values are percent decoded according to `options`.
  
  If you have a query which doesn't match `NSDictionary`'s design, drop down to
- the primitive `-enumerateQueryParametersUsingBlock:` method instead.
+ the primitive `-enumerateQueryParametersWithOptions:usingBlock:` method instead.
  
+ @param options A mask that specifies options for parameter decoding.
  @return `nil` if query doesn't neatly fit an `NSDictionary` representation
  */
-@property (copy) NSDictionary *queryParameters;
+- (NSDictionary *)queryParametersWithOptions:(KSURLComponentsQueryParameterDecodingOptions)options;
+
+/**
+ Converts between `.query` strings and their dictionary representation.
+ 
+ For example:
+ 
+    @{ @"key" : @"value", @"foo" : @"bar" }
+ 
+ can be represented as:
+ 
+    http://example.com?key=value&foo=bar
+ 
+ Keys and values are percent encoded according to `options`.
+ 
+ @param parameters A dictionary to encode, whose keys and values are all strings.
+ @param options A mask that specifies options for parameter decoding. Pass `0` for now.
+ */
+- (void)setQueryParameters:(NSDictionary *)parameters options:(NSUInteger)options;
 
 /**
  Enumerates the parameters of `.query`
@@ -111,8 +135,9 @@
  
  Keys and values are percent decoded for your convenience.
  
- @param A block called for each parameter of the query
+ @param options A mask that specifies options for parameter decoding.
+ @param block A block called for each parameter of the query.
  */
-- (void)enumerateQueryParametersUsingBlock:(void (^)(NSString *key, NSString *value, BOOL *stop))block;
+- (void)enumerateQueryParametersWithOptions:(KSURLComponentsQueryParameterDecodingOptions)options usingBlock:(void (^)(NSString *key, NSString *value, BOOL *stop))block __attribute((nonnull(2)));
 
 @end
