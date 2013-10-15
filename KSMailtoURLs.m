@@ -72,7 +72,7 @@ NSString *KSURLMailtoHeaderBody = @"body";
     if (queryIndicatorRange.location != NSNotFound)
     {
         NSString *query = [urlString substringFromIndex:queryIndicatorRange.location];
-        return [[KSURLComponents componentsWithString:query] queryParameters];
+        return [[KSURLComponents componentsWithString:query] queryParametersWithOptions:0];
     }
     
     return nil;
