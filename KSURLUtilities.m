@@ -44,7 +44,7 @@
                         [[self absoluteString] substringFromIndex:[scheme length] + 1]];    // should be safe since a colon was needed to know scheme
     
     NSURL *result = [[self class] URLWithString:string];
-    [string release];
+	
     return result;
 }
 
@@ -112,7 +112,7 @@
     // Work around 10.6 bug by effectively "faulting in" the base URL
     if ([path isAbsolutePath] && [baseURL isFileURL]) [baseURL absoluteString];
     
-	NSURL *result =  [self URLWithString:(NSString *)encodedPath relativeToURL:baseURL];
+	NSURL *result =  [self URLWithString:(__bridge NSString *)encodedPath relativeToURL:baseURL];
     NSAssert(result, @"path wasn't escaped properly somehow: %@", path);
     
     CFRelease(encodedPath);
@@ -127,7 +127,6 @@
 {
     NSURL *URL = [[NSURL alloc] initFileURLWithPath:path];
     NSString *result = [URL absoluteString];
-    [URL release];
     
     return result;
 }
@@ -143,31 +142,26 @@
 
 - (NSString *)ks_lastPathComponent
 {
-	NSString *result = NSMakeCollectable(CFURLCopyLastPathComponent((CFURLRef)[self absoluteURL]));
-	return [result autorelease];
+	return [[self absoluteURL] lastPathComponent];
 }
 
 - (NSString *)ks_pathExtension
 {
-	NSString *result = NSMakeCollectable(CFURLCopyPathExtension((CFURLRef)[self absoluteURL]));
-	return [result autorelease];
+	return [[self absoluteURL] pathExtension];
 }
 
 - (NSURL *)ks_URLByAppendingPathExtension:(NSString *)pathExtension
 {
-	NSURL *result = NSMakeCollectable(CFURLCreateCopyAppendingPathExtension(NULL,
-                                                                            (CFURLRef)self,
-                                                                            (CFStringRef)pathExtension));
-	return [result autorelease];
+	return [self URLByAppendingPathExtension:pathExtension];
 }
 
 - (NSURL *)ks_URLByDeletingLastPathComponent
 {
     NSURL *result = self;
+	
     if ([[self path] length])   // #74010
     {
-        result = NSMakeCollectable(CFURLCreateCopyDeletingLastPathComponent(NULL, (CFURLRef)self));
-        [result autorelease];
+		result = [self URLByDeletingLastPathComponent];
     }
     
     return result;
@@ -175,8 +169,7 @@
 
 - (NSURL *)ks_URLByDeletingPathExtension
 {
-	NSURL *result = NSMakeCollectable(CFURLCreateCopyDeletingPathExtension(NULL, (CFURLRef)self));
-	return [result autorelease];
+	return [self URLByDeletingPathExtension];
 }
 
 #endif
@@ -190,12 +183,8 @@
 - (NSURL *)ks_URLByAppendingPathComponent:(NSString *)pathComponent isDirectory:(BOOL)isDirectory
 {
     NSParameterAssert(pathComponent);
-    
-	NSURL *result = NSMakeCollectable(CFURLCreateCopyAppendingPathComponent(NULL,
-                                                                            (CFURLRef)self,
-                                                                            (CFStringRef)pathComponent,
-                                                                            isDirectory));
-	return [result autorelease];
+	
+	return [self URLByAppendingPathComponent:pathComponent isDirectory:isDirectory];
 }
 
 /*  e.g. http://example.com/foo/bar.html is a subpath of http://example.com/foo/
@@ -329,22 +318,22 @@
     }
     else if (!CFURLHasDirectoryPath(absoluteURL))   // faster than -ks_hasDirectoryPath
     {
-        NSString *shortenedPath = [(NSString *)dirPath stringByDeletingLastPathComponent];
-        CFRelease(dirPath); dirPath = CFRetain(shortenedPath);
+        NSString *shortenedPath = [(__bridge NSString *)dirPath stringByDeletingLastPathComponent];
+        CFRelease(dirPath); dirPath = CFRetain((__bridge CFTypeRef)(shortenedPath));
     }
     
     CFRelease(absoluteURL);
     
     
     // Let -ks_pathRelativeToDirectory: do the heavy lifting
-    NSString *result = [(NSString *)myPath ks_pathRelativeToDirectory:(NSString *)dirPath];
+    NSString *result = [(__bridge NSString *)myPath ks_pathRelativeToDirectory:(__bridge NSString *)dirPath];
     
     // But here's an odd edge case, http://example.com/foo relative to http://example.com/foo/ should be '../foo' which -ks_pathRelativeToDirectory returns '.' from; perfectly fine for posix, but not us!
     if ([result isEqualToString:@"."])
     {
-        if ([[(NSString *)myPath stringByAppendingString:@"/"] isEqualToString:(NSString *)dirPath])
+        if ([[(__bridge NSString *)myPath stringByAppendingString:@"/"] isEqualToString:(__bridge NSString *)dirPath])
         {
-            result = [@"../" stringByAppendingString:[(NSString *)myPath lastPathComponent]];
+            result = [@"../" stringByAppendingString:[(__bridge NSString *)myPath lastPathComponent]];
         }
     }
     
@@ -501,9 +490,7 @@
         [data replaceBytesInRange:NSMakeRange(range.location, range.length) withBytes:[hostData bytes] length:[hostData length]];
         
         // Create final URL
-        result = NSMakeCollectable(CFURLCreateWithBytes(NULL, [data bytes], [data length], kCFStringEncodingASCII, NULL));
-        [result autorelease];
-        [data release];
+		result = CFBridgingRelease(CFURLCreateWithBytes(NULL, [data bytes], [data length], kCFStringEncodingASCII, NULL));
     }
     
     CFRelease(absolute);
@@ -522,13 +509,13 @@
                              charactersToLeaveUnescaped:(NSString *)unescapedCharacters
                           legalURLCharactersToBeEscaped:(NSString *)legalCharactersToEscape;
 {
-    NSString *result = NSMakeCollectable(CFURLCreateStringByAddingPercentEscapes(NULL,
-                                                                                 (CFStringRef)self,
-                                                                                 (CFStringRef)unescapedCharacters,
-                                                                                 (CFStringRef)legalCharactersToEscape,
-                                                                                 CFStringConvertNSStringEncodingToEncoding(encoding)));
+    NSString *result = CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
+																				 (CFStringRef)self,
+																				 (CFStringRef)unescapedCharacters,
+																				 (CFStringRef)legalCharactersToEscape,
+																				 CFStringConvertNSStringEncodingToEncoding(encoding)));
     
-    return [result autorelease];
+	return result;
 }
 
 - (NSString *)ks_stringByAddingPercentEscapesWithSpacesAsPlusCharacters:(BOOL)encodeSpacesAsPlusCharacters
@@ -550,7 +537,7 @@
                                           options:NSLiteralSearch
                                             range:NSMakeRange(0, [mutableResult length])];
         
-        result = [mutableResult autorelease];
+		result = mutableResult;
     }
     
     
@@ -577,7 +564,7 @@
                                           options:NSLiteralSearch
                                             range:NSMakeRange(0, [mutableResult length])];
         
-        result = [mutableResult autorelease];
+        result = mutableResult;
     }
     
     

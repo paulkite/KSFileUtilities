@@ -26,7 +26,7 @@
 #import "KSURLFormatter.h"
 
 #import "KSURLUtilities.h"
-#import "NSURL+IFUnicodeURL.h"
+//#import "NSURL+IFUnicodeURL.h"
 
 
 @implementation KSURLFormatter
@@ -48,15 +48,15 @@
     if (escapedString)
     {
         // Any hashes after first # needs to be escaped. e.g. Apple's dev docs hand out URLs like this
-        NSRange range = [(NSString *)escapedString rangeOfString:@"#"];
+        NSRange range = [(__bridge NSString *)escapedString rangeOfString:@"#"];
         if (range.location != NSNotFound)
         {
-            NSRange postFragmentRange = NSMakeRange(NSMaxRange(range), [(NSString *)escapedString length] - NSMaxRange(range));
-            range = [(NSString *)escapedString rangeOfString:@"#" options:0 range:postFragmentRange];
+            NSRange postFragmentRange = NSMakeRange(NSMaxRange(range), [(__bridge NSString *)escapedString length] - NSMaxRange(range));
+            range = [(__bridge NSString *)escapedString rangeOfString:@"#" options:0 range:postFragmentRange];
             
             if (range.location != NSNotFound)
             {
-                NSString *extraEscapedString = [(NSString *)escapedString stringByReplacingOccurrencesOfString:@"#"
+                NSString *extraEscapedString = [(__bridge NSString *)escapedString stringByReplacingOccurrencesOfString:@"#"
                                                                                                     withString:@"%23"   // not ideal, encoding ourselves
                                                                                                        options:0
                                                                                                          range:postFragmentRange];
@@ -66,7 +66,7 @@
             }
         }
         
-        result = [NSURL URLWithString:(NSString *)escapedString];
+        result = [NSURL URLWithString:(__bridge NSString *)escapedString];
         CFRelease(escapedString);
     }
     
@@ -104,7 +104,6 @@
         {
             // Account for strings like http://example.com/@foo which seem to be technically valid as an email address, but unlikely to be one
             if ([URL scheme]) result = NO;
-            [URL release];
         }
     }
     
@@ -117,18 +116,10 @@
 {
     if (self = [super init])
     {
-        _defaultScheme = [@"http" retain];
-        _fallbackTopLevelDomain = [@"com" retain];
+        _defaultScheme = @"http";
+        _fallbackTopLevelDomain = @"com";
     }
     return self;
-}
-
-- (void)dealloc
-{
-    [_defaultScheme release];
-    [_allowedSchemes release];
-    [_fallbackTopLevelDomain release];
-    [super dealloc];
 }
 
 #pragma mark Managing Behaviour
@@ -142,7 +133,7 @@
     if (schemes) NSParameterAssert([schemes count] > 0);
     
     schemes = [schemes copy];
-    [_allowedSchemes release]; _allowedSchemes = schemes;
+    _allowedSchemes = schemes;
 }
 
 @synthesize fallbackTopLevelDomain = _fallbackTopLevelDomain;
@@ -167,7 +158,7 @@
     }
     else
     {
-        result = [URL unicodeAbsoluteString];
+        result = [URL absoluteString];
         
         // Append trailing slash if needed
         if ([URL ks_hasNetworkLocation] && [[URL path] isEqualToString:@""])
@@ -349,7 +340,7 @@ static NSValueTransformer *_transformer;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _transformer = [[NSValueTransformer valueTransformerForName:@"KSEncodeURLString"] retain];
+        _transformer = [NSValueTransformer valueTransformerForName:@"KSEncodeURLString"];
     });
     
     return _transformer;
@@ -360,7 +351,7 @@ static NSValueTransformer *_transformer;
     [self encodeStringValueTransformer]; // ensure initial search has run
     
     if (transformer != _transformer) return;
-    [_transformer release]; _transformer = [transformer retain];
+	_transformer = transformer;
     
     if (![[[transformer class] transformedValueClass] isSubclassOfClass:[NSURL class]])
     {
