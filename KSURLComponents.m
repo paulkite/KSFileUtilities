@@ -61,7 +61,7 @@
     if (schemeRange.location != kCFNotFound)
     {
         CFStringRef scheme = CFStringCreateWithSubstring(NULL, urlString, schemeRange);
-        self.scheme = (NSString *)scheme;
+        self.scheme = (__bridge NSString *)scheme;
         CFRelease(scheme);
         
         // For URLs which feature no slashes to indicate the path *before* a
@@ -74,7 +74,7 @@
                                          kCFCompareAnchored,
                                          NULL))
             {
-                NSMutableString *fudgedString = [(NSString *)urlString mutableCopy];
+                NSMutableString *fudgedString = [(__bridge NSString *)urlString mutableCopy];
                 [fudgedString insertString:@"/"
                                    atIndex:(schemeRange.length + 1)];   // after the colon
                 
@@ -92,7 +92,7 @@
     if (userRange.location != kCFNotFound)
     {
         CFStringRef user = CFStringCreateWithSubstring(NULL, urlString, userRange);
-        self.percentEncodedUser = (NSString *)user;
+        self.percentEncodedUser = (__bridge NSString *)user;
         CFRelease(user);
     }
     
@@ -101,7 +101,7 @@
     if (passwordRange.location != kCFNotFound)
     {
         CFStringRef password = CFStringCreateWithSubstring(NULL, urlString, passwordRange);
-        self.percentEncodedPassword = (NSString *)password;
+        self.percentEncodedPassword = (__bridge NSString *)password;
         CFRelease(password);
     }
     
@@ -111,7 +111,7 @@
     if (hostRange.location != kCFNotFound)
     {
         CFStringRef host = CFStringCreateWithSubstring(NULL, urlString, hostRange);
-        self.percentEncodedHost = (NSString *)host;
+        self.percentEncodedHost = (__bridge NSString *)host;
         CFRelease(host);
     }
     
@@ -157,21 +157,21 @@
         }
         
         CFStringRef path = CFStringCreateWithSubstring(NULL, CFURLGetString((CFURLRef)url), pathRange);
-        self.percentEncodedPath = (NSString *)path;
+        self.percentEncodedPath = (__bridge NSString *)path;
         CFRelease(path);
     }
     
     CFStringRef query = CFURLCopyQueryString((CFURLRef)url, NULL);
     if (query)
     {
-        self.percentEncodedQuery = (NSString *)query;
+        self.percentEncodedQuery = (__bridge NSString *)query;
         CFRelease(query);
     }
     
     CFStringRef fragment = CFURLCopyFragment((CFURLRef)url, NULL);
     if (fragment)
     {
-        self.percentEncodedFragment = (NSString *)fragment;
+        self.percentEncodedFragment = (__bridge NSString *)fragment;
         CFRelease(fragment);
     }
     
@@ -340,7 +340,7 @@
     // @ signifies the end of the user/password, so must be escaped
     // / ? # I reckon technically should be fine since they're before the @ symbol, but NSURLComponents seems to be cautious here, and understandably so
     
-    self.percentEncodedUser = (NSString *)escaped;
+    self.percentEncodedUser = (__bridge NSString *)escaped;
     CFRelease(escaped);
 }
 
@@ -361,7 +361,7 @@
     // @ signifies the end of the user/password, so must be escaped
     // : / ? # I reckon technically should be fine since they're before the @ symbol, but NSURLComponents seems to be cautious here, and understandably so
     
-    self.percentEncodedPassword = (NSString *)escaped;
+    self.percentEncodedPassword = (__bridge NSString *)escaped;
     CFRelease(escaped);
 }
 
@@ -410,7 +410,7 @@
     // : must be escaped too to avoid confusion with port
     // / ? and # must be escaped so as not to indicate start of path, query or fragment
     
-    self.percentEncodedHost = (NSString *)escaped;
+    self.percentEncodedHost = (__bridge NSString *)escaped;
     CFRelease(escaped);
 }
 
@@ -444,7 +444,7 @@
     // : doesn't *need* to be escaped if the path is part of a complete URL, but it does if the generated URL is scheme-less. Seems safest to always escape it, and NSURLComponents does so too
     // ; ? and # all need to be escape to avoid confusion with parameter, query and fragment
     
-    self.percentEncodedPath = (NSString *)escaped;
+    self.percentEncodedPath = (__bridge NSString *)escaped;
     CFRelease(escaped);
 }
 
@@ -462,7 +462,7 @@
     }
     
     CFStringRef escaped = CFURLCreateStringByAddingPercentEscapes(NULL, (CFStringRef)query, NULL, NULL, kCFStringEncodingUTF8);
-    self.percentEncodedQuery = (NSString *)escaped;
+    self.percentEncodedQuery = (__bridge NSString *)escaped;
     CFRelease(escaped);
 }
 
@@ -480,7 +480,7 @@
     }
     
     CFStringRef escaped = CFURLCreateStringByAddingPercentEscapes(NULL, (CFStringRef)fragment, NULL, NULL, kCFStringEncodingUTF8);
-    self.percentEncodedFragment = (NSString *)escaped;
+    self.percentEncodedFragment = (__bridge NSString *)escaped;
     CFRelease(escaped);
 }
 

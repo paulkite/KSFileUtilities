@@ -71,25 +71,24 @@ typedef NS_ENUM(NSInteger, ks_URLPart)
 
 - (NSURL *)ks_normalizedURL
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
     NSURL *norm = self;
-    norm = [norm ks_URLByRemovingDuplicateSlashes]; // must be 1st!
-    norm = [norm ks_URLByRemovingDotSegments];
-    norm = [norm ks_URLByRemovingDuplicateSlashes];
-    norm = [norm ks_URLByLowercasingSchemeAndHost];
-    norm = [norm ks_URLByUppercasingEscapes];
-    norm = [norm ks_URLByUnescapingUnreservedCharactersInPath];
-	norm = [norm ks_URLByAddingTrailingSlashToDirectory];
-    norm = [norm ks_URLByRemovingDefaultPort];
-	if (!norm.fileURL)
-	{
-		norm = [norm ks_URLByRemovingDirectoryIndex];
-	}
-	norm = [norm ks_URLByRemovingFragment];
-    [norm retain];
-    
-    [pool drain];
+
+    @autoreleasepool {
+        norm = [norm ks_URLByRemovingDuplicateSlashes]; // must be 1st!
+        norm = [norm ks_URLByRemovingDotSegments];
+        norm = [norm ks_URLByRemovingDuplicateSlashes];
+        norm = [norm ks_URLByLowercasingSchemeAndHost];
+        norm = [norm ks_URLByUppercasingEscapes];
+        norm = [norm ks_URLByUnescapingUnreservedCharactersInPath];
+        norm = [norm ks_URLByAddingTrailingSlashToDirectory];
+        norm = [norm ks_URLByRemovingDefaultPort];
+        if (!norm.fileURL)
+        {
+            norm = [norm ks_URLByRemovingDirectoryIndex];
+        }
+        norm = [norm ks_URLByRemovingFragment];
+        [norm retain];
+    }
     
     return [norm autorelease];
 }
