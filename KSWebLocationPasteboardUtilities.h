@@ -39,7 +39,7 @@
 
 #pragma mark Pasteboard Reading
 + (NSArray *)readableTypesForPasteboard:(NSPasteboard *)pasteboard;
-- (id)initWithPasteboardPropertyList:(id)propertyList ofType:(NSString *)type;
+- (instancetype)initWithPasteboardPropertyList:(id)propertyList ofType:(NSString *)type;
 
 
 #pragma mark URL Guessing
@@ -60,5 +60,5 @@
 // 1. last path component
 // 2. minus path extension
 // 3. any underscores converted to spaces
-- (NSArray *)readWebLocations;
+@property (nonatomic, readonly, copy) NSArray *readWebLocations;
 @end

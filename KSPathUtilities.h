@@ -36,7 +36,7 @@
 
 // Given a path "foo/bar.png", adjusts it to be "foo/bar-2.png". Calling -ks_stringByIncrementingPath on that string will then give "foo/bar-3.png" and so on
 // More at http://www.mikeabdullah.net/incrementing-paths.html
-- (NSString *)ks_stringByIncrementingPath;
+@property (nonatomic, readonly, copy) NSString *ks_stringByIncrementingPath;
 
 // like -stringByAppendingString: but inserts the suffix string in front of path extension if there is one. e.g. [@"foo.png" ks_stringWithPathSuffix:@"-2"] = @"foo-2.png"
 - (NSString *)ks_stringWithPathSuffix:(NSString *)aString;
@@ -62,7 +62,7 @@
 #pragma mark POSIX Paths
 
 // NSString has built-in methods for standardizing a path, but they consult the filesystem for symlinks. This method only looks at the path itself
-- (NSString *)ks_standardizedPOSIXPath;
+@property (nonatomic, readonly, copy) NSString *ks_standardizedPOSIXPath;
 
 // Like -isEqualToString: but ignores trailing slashes
 - (BOOL)ks_isEqualToPOSIXPath:(NSString *)otherPath;

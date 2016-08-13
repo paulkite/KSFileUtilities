@@ -34,14 +34,14 @@
 
 - (NSURL *)ks_URLWithScheme:(NSString *)newScheme;
 {
-    NSString *scheme = [self scheme];
+    NSString *scheme = self.scheme;
     if (!scheme) return nil;
 
     // -resourceSpecifier is supposed to give me everything after the scheme's colon, but for file:///path URLs, it just returns /path. Work around by deducing when resource specifier truly starts. Also found CFURLCopyResourceSpecifier() returns NULL for such URLs, against its documentation
     NSString *string = [[NSString alloc] initWithFormat:
                         @"%@:%@",
                         newScheme,
-                        [[self absoluteString] substringFromIndex:[scheme length] + 1]];    // should be safe since a colon was needed to know scheme
+                        [self.absoluteString substringFromIndex:scheme.length + 1]];    // should be safe since a colon was needed to know scheme
     
     NSURL *result = [[self class] URLWithString:string];
 	
@@ -60,17 +60,17 @@
 
 - (NSArray *)ks_domains;
 {
-    NSArray *result = [[self host] componentsSeparatedByString:@"."];
+    NSArray *result = [self.host componentsSeparatedByString:@"."];
     return result;
 }
 
 - (BOOL)ks_hasNetworkLocation
 {
-	NSString *resourceSpecifier = [self resourceSpecifier];
+	NSString *resourceSpecifier = self.resourceSpecifier;
 	
 	BOOL result = (resourceSpecifier != nil &&
-				   [resourceSpecifier length] > 2 &&
-				   [[self ks_domains] count] >= 2);
+				   resourceSpecifier.length > 2 &&
+				   [self ks_domains].count >= 2);
 	
 	return result;
 }
@@ -110,7 +110,7 @@
                                                                       kCFStringEncodingUTF8);
 	
     // Work around 10.6 bug by effectively "faulting in" the base URL
-    if ([path isAbsolutePath] && [baseURL isFileURL]) [baseURL absoluteString];
+    if (path.absolutePath && baseURL.fileURL) baseURL.absoluteString;
     
 	NSURL *result =  [self URLWithString:(__bridge NSString *)encodedPath relativeToURL:baseURL];
     NSAssert(result, @"path wasn't escaped properly somehow: %@", path);
@@ -126,7 +126,7 @@
 + (NSString *)ks_fileURLStringWithPath:(NSString *)path;
 {
     NSURL *URL = [[NSURL alloc] initFileURLWithPath:path];
-    NSString *result = [URL absoluteString];
+    NSString *result = URL.absoluteString;
     
     return result;
 }
@@ -196,26 +196,26 @@
     
     
     // File URLs are treated specially to handle 'localhost' versus '///' and symlinks
-    if ([self isFileURL] && [aURL isFileURL])
+    if (self.fileURL && aURL.fileURL)
     {
         // Resolve aliases for local paths
-        NSString *myPath = [[self path] stringByResolvingSymlinksInPath];
-        NSString *otherPath = [[aURL path] stringByResolvingSymlinksInPath];
+        NSString *myPath = self.path.stringByResolvingSymlinksInPath;
+        NSString *otherPath = aURL.path.stringByResolvingSymlinksInPath;
         
         result = [myPath ks_isSubpathOfPath:otherPath];
     }
     else
     {
-        NSString *scheme = [self scheme];
-        NSString *otherScheme = [aURL scheme];
+        NSString *scheme = self.scheme;
+        NSString *otherScheme = aURL.scheme;
         if (scheme && otherScheme && [scheme compare:otherScheme options:NSCaseInsensitiveSearch] == NSOrderedSame)
         {
-            NSString *myHost = [self host];
-            NSString *otherHost = [aURL host];
+            NSString *myHost = self.host;
+            NSString *otherHost = aURL.host;
             if (myHost && otherHost && [myHost compare:otherHost options:NSCaseInsensitiveSearch] == NSOrderedSame)
             {
-                NSString *myPath = [[self standardizedURL] path];
-                NSString *otherPath = [[aURL standardizedURL] path];
+                NSString *myPath = self.standardizedURL.path;
+                NSString *otherPath = aURL.standardizedURL.path;
                 
                 if (myPath && otherPath)
                 {
@@ -252,7 +252,7 @@
 	
 	
 	// If the scheme, host or port differs, there is no possible relative path. Schemes and domains are considered to be case-insensitive. http://en.wikipedia.org/wiki/URL_normalization
-    NSString *myHost = [self host];
+    NSString *myHost = self.host;
     if (!myHost)
     {
         // Host-less file URLs get special treatment, as if they're localhost. Maybe that could/should
@@ -263,12 +263,12 @@
         else {
             
         // If self is an empty URL, there's no way to get to it. Falls through to here; return nil
-        NSString *result = [self absoluteString];
-        return ([result length] ? result : nil);
+        NSString *result = self.absoluteString;
+        return (result.length ? result : nil);
         }
     }
     
-    NSString *otherHost = [URL host];
+    NSString *otherHost = URL.host;
     if (!otherHost) {
         // Host-less file URLs get special treatment, as if they're localhost
         if (URL.isFileURL) {
@@ -281,16 +281,16 @@
     
     if ([myHost caseInsensitiveCompare:otherHost] != NSOrderedSame) BAIL;
     
-    NSString *myScheme = [self scheme];
+    NSString *myScheme = self.scheme;
     if (!myScheme) BAIL;
     
-    NSString *otherScheme = [URL scheme];
+    NSString *otherScheme = URL.scheme;
     if (!otherScheme) BAIL;
     
     if ([myScheme caseInsensitiveCompare:otherScheme] != NSOrderedSame) BAIL;
     
-    NSNumber *myPort = [self port];
-    NSNumber *aPort = [URL port];
+    NSNumber *myPort = self.port;
+    NSNumber *aPort = URL.port;
     if (aPort != myPort && ![myPort isEqual:aPort]) // -isEqualToNumber: throws when passed nil
     {
         BAIL;
@@ -318,7 +318,7 @@
     }
     else if (!CFURLHasDirectoryPath(absoluteURL))   // faster than -ks_hasDirectoryPath
     {
-        NSString *shortenedPath = [(__bridge NSString *)dirPath stringByDeletingLastPathComponent];
+        NSString *shortenedPath = ((__bridge NSString *)dirPath).stringByDeletingLastPathComponent;
         CFRelease(dirPath); dirPath = CFRetain((__bridge CFTypeRef)(shortenedPath));
     }
     
@@ -333,7 +333,7 @@
     {
         if ([[(__bridge NSString *)myPath stringByAppendingString:@"/"] isEqualToString:(__bridge NSString *)dirPath])
         {
-            result = [@"../" stringByAppendingString:[(__bridge NSString *)myPath lastPathComponent]];
+            result = [@"../" stringByAppendingString:((__bridge NSString *)myPath).lastPathComponent];
         }
     }
     
@@ -352,19 +352,19 @@
     
     
     // Re-build any non-path information
-	NSString *parameters = [self parameterString];
+	NSString *parameters = self.parameterString;
 	if (parameters)
 	{
 		result = [result stringByAppendingFormat:@";%@", parameters];
 	}
 	
-	NSString *query = [self query];
+	NSString *query = self.query;
 	if (query)
 	{
 		result = [result stringByAppendingFormat:@"?%@", query];
 	}
 	
-	NSString *fragment = [self fragment];
+	NSString *fragment = self.fragment;
 	if (fragment)
 	{
 		result = [result stringByAppendingFormat:@"#%@", fragment];
@@ -398,9 +398,9 @@
     BOOL result = [self isEqual:otherURL];
     
    // For file: URLs the default check might have failed because they reference the host differently. If so, fall back to checking paths
-    if (!result && [self isFileURL] && [otherURL isFileURL])
+    if (!result && self.fileURL && otherURL.fileURL)
     {
-        result = [[self path] isEqualToString:[otherURL path]];
+        result = [self.path isEqualToString:otherURL.path];
     }
     
     return result;
@@ -409,32 +409,32 @@
 - (BOOL)ks_isEqualExceptFragmentToURL:(NSURL *)anotherURL
 {
 	// cover case where both are nil
-	return	( ([self baseURL] == [anotherURL baseURL]) || [[self baseURL] isEqual:[anotherURL baseURL]] )
+	return	( (self.baseURL == anotherURL.baseURL) || [self.baseURL isEqual:anotherURL.baseURL] )
 	&& 
-	( ([self scheme] == [anotherURL scheme]) || [[self scheme] isEqual:[anotherURL scheme]] )
+	( (self.scheme == anotherURL.scheme) || [self.scheme isEqual:anotherURL.scheme] )
 	&& 
-	( ([self host] == [anotherURL host]) || [[self host] isEqual:[anotherURL host]] )
+	( (self.host == anotherURL.host) || [self.host isEqual:anotherURL.host] )
 	&& 
-	( ([self path] == [anotherURL path]) || [[self path] isEqual:[anotherURL path]] )
+	( (self.path == anotherURL.path) || [self.path isEqual:anotherURL.path] )
 	&& 
 	
 	// query == parameterString?
     
-	( ([self query] == [anotherURL query]) || [[self query] isEqual:[anotherURL query]] )
+	( (self.query == anotherURL.query) || [self.query isEqual:anotherURL.query] )
 	&& 
-	( ([self parameterString] == [anotherURL parameterString]) || [[self parameterString] isEqual:[anotherURL parameterString]] )
+	( (self.parameterString == anotherURL.parameterString) || [self.parameterString isEqual:anotherURL.parameterString] )
 	&& 
-	( ([self baseURL] == [anotherURL baseURL]) || [[self baseURL] isEqual:[anotherURL baseURL]] )
+	( (self.baseURL == anotherURL.baseURL) || [self.baseURL isEqual:anotherURL.baseURL] )
 	
 	// less common pieces, but we gotta be careful
 	&& 
-	( ([self baseURL] == [anotherURL baseURL]) || [[self baseURL] isEqual:[anotherURL baseURL]] )
+	( (self.baseURL == anotherURL.baseURL) || [self.baseURL isEqual:anotherURL.baseURL] )
 	&& 
-	( ([self port] == [anotherURL port]) || [[self port] isEqual:[anotherURL port]] )
+	( (self.port == anotherURL.port) || [self.port isEqual:anotherURL.port] )
 	&& 
-	( ([self password] == [anotherURL password]) || [[self password] isEqual:[anotherURL password]] )
+	( (self.password == anotherURL.password) || [self.password isEqual:anotherURL.password] )
 	&& 
-	( ([self user] == [anotherURL user]) || [[self user] isEqual:[anotherURL user]] )
+	( (self.user == anotherURL.user) || [self.user isEqual:anotherURL.user] )
 	;
 	
 }
@@ -482,15 +482,15 @@
         // Grab data
         CFIndex length = CFURLGetBytes(absolute, NULL, 0);
         NSMutableData *data = [[NSMutableData alloc] initWithLength:length];
-        length = CFURLGetBytes(absolute, [data mutableBytes], [data length]);
+        length = CFURLGetBytes(absolute, data.mutableBytes, data.length);
         NSAssert(length == [data length], @"CFURLGetBytes() lied to us!");
         
         // Replace the host
         NSData *hostData = [string dataUsingEncoding:NSASCIIStringEncoding];
-        [data replaceBytesInRange:NSMakeRange(range.location, range.length) withBytes:[hostData bytes] length:[hostData length]];
+        [data replaceBytesInRange:NSMakeRange(range.location, range.length) withBytes:hostData.bytes length:hostData.length];
         
         // Create final URL
-		result = CFBridgingRelease(CFURLCreateWithBytes(NULL, [data bytes], [data length], kCFStringEncodingASCII, NULL));
+		result = CFBridgingRelease(CFURLCreateWithBytes(NULL, data.bytes, data.length, kCFStringEncodingASCII, NULL));
     }
     
     CFRelease(absolute);
@@ -535,7 +535,7 @@
         [mutableResult replaceOccurrencesOfString:@" "
                                        withString:@"+"
                                           options:NSLiteralSearch
-                                            range:NSMakeRange(0, [mutableResult length])];
+                                            range:NSMakeRange(0, mutableResult.length)];
         
 		result = mutableResult;
     }
@@ -562,7 +562,7 @@
         [mutableResult replaceOccurrencesOfString:@" "
                                        withString:@"+"
                                           options:NSLiteralSearch
-                                            range:NSMakeRange(0, [mutableResult length])];
+                                            range:NSMakeRange(0, mutableResult.length)];
         
         result = mutableResult;
     }

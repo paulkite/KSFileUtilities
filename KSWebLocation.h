@@ -49,8 +49,8 @@
 #pragma mark Init
 + (instancetype)webLocationWithURL:(NSURL *)URL;
 + (instancetype)webLocationWithURL:(NSURL *)URL title:(NSString *)title;
-- (id)initWithURL:(NSURL *)URL;
-- (id)initWithURL:(NSURL *)URL title:(NSString *)title;	// Designated initializer
+- (instancetype)initWithURL:(NSURL *)URL;
+- (instancetype)initWithURL:(NSURL *)URL title:(NSString *)title NS_DESIGNATED_INITIALIZER;	// Designated initializer
 
 
 #pragma mark Accessors
@@ -70,5 +70,5 @@
 
 @interface KSWebLocation (WeblocFiles)
 + (instancetype)webLocationWithContentsOfWeblocFile:(NSURL *)weblocURL;
-- (id)initWithContentsOfWeblocFile:(NSURL *)weblocURL;
+- (instancetype)initWithContentsOfWeblocFile:(NSURL *)weblocURL;
 @end

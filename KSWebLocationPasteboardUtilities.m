@@ -52,11 +52,10 @@
                                withObject:pasteboard];
     }
     
-    NSArray *result = [NSArray arrayWithObjects:
-                       NSURLPboardType,
+    NSArray *result = @[NSURLPboardType,
                        NSStringPboardType,
                        NSRTFPboardType,
-                       NSRTFDPboardType, nil];
+                       NSRTFDPboardType];
     
     if (URLTypes) result = [URLTypes arrayByAddingObjectsFromArray:result];
     return result;
@@ -81,12 +80,12 @@
 
 + (NSString *)guessTitleForURL:(NSURL *)URL;
 {
-    NSString *result = [[URL ks_lastPathComponent] stringByDeletingPathExtension];
+    NSString *result = URL.lastPathComponent.stringByDeletingPathExtension;
     result = [result stringByReplacingOccurrencesOfString:@"_" withString:@" "];
     return result;
 }
 
-- (id)initWithPasteboardPropertyList:(id)propertyList ofType:(NSString *)type;
+- (instancetype)initWithPasteboardPropertyList:(id)propertyList ofType:(NSString *)type;
 {
     // Try with NSURL
     NSURL *URL = [[NSURL alloc] initWithPasteboardPropertyList:propertyList ofType:type];
@@ -100,7 +99,7 @@
     else
     {
         NSString *string = [propertyList description];
-        if ([string length] <= 2048)	// No point processing particularly long strings
+        if (string.length <= 2048)	// No point processing particularly long strings
         {
             NSURL *plistURL = [KSURLFormatter URLFromString:string];	/// encodeLegally to handle accented characters
             if (plistURL && [plistURL ks_hasNetworkLocation])
@@ -142,16 +141,16 @@
             NSString *string = [pboard stringForType:NSStringPboardType];
             
             NSArray *checkResults = [spellChecker checkString:string
-                                                        range:NSMakeRange(0, [string length])
+                                                        range:NSMakeRange(0, string.length)
                                                         types:(NSTextCheckingTypes)NSTextCheckingTypeLink   // cast to suppress oddity of SDK
                                                       options:nil
                                        inSpellDocumentWithTag:0
                                                   orthography:NULL
                                                     wordCount:NULL];
             
-            if ([checkResults count])
+            if (checkResults.count)
             {
-                result = [[checkResults objectAtIndex:0] URL];
+                result = [checkResults[0] URL];
             }
         }
     }
@@ -164,15 +163,14 @@
 
 + (NSArray *)webLocationPasteboardTypes
 {
-    return [NSArray arrayWithObjects:
-			@"WebURLsWithTitlesPboardType",
+    return @[@"WebURLsWithTitlesPboardType",
 			@"BookmarkDictionaryListPboardType",
-            kUTTypeURL,                             // contains the target URL when dragging webloc
+            (id)kUTTypeURL,                             // contains the target URL when dragging webloc
             NSFilenamesPboardType,
 			NSURLPboardType,
 			NSStringPboardType,
 			NSRTFPboardType,
-			NSRTFDPboardType, nil];
+			NSRTFDPboardType];
 }
 
 /*	Retrieve URLs and their titles from the pasteboard for the "BookmarkDictionaryListPboardType" type
@@ -182,21 +180,21 @@
 	NSArray *result = nil;
 	
 	NSArray *arrayFromData = propertyList;
-	if (arrayFromData && [arrayFromData isKindOfClass:[NSArray class]] && [arrayFromData count] > 0)
+	if (arrayFromData && [arrayFromData isKindOfClass:[NSArray class]] && arrayFromData.count > 0)
 	{
-		NSDictionary *objectInfo = [arrayFromData objectAtIndex:0];
+		NSDictionary *objectInfo = arrayFromData[0];
 		if ([objectInfo isKindOfClass:[NSDictionary class]])
 		{
-			NSString *URLString = [objectInfo objectForKey:@"URLString"];
+			NSString *URLString = objectInfo[@"URLString"];
 			NSURL *URL = [KSURLFormatter URLFromString:URLString];	/// encodeLegally to handle accented characters
 			
 			if (URL)
 			{
-				NSString *title = [[objectInfo objectForKey:@"URIDictionary"] objectForKey:@"title"];
+				NSString *title = objectInfo[@"URIDictionary"][@"title"];
                 if (!title) title = [[self class] guessTitleForURL:URL];
 				
 				KSWebLocation *webLoc = [[KSWebLocation alloc] initWithURL:URL title:title];
-				result = [NSArray arrayWithObject:webLoc];
+				result = @[webLoc];
 				[webLoc release];
 			}
 		}
@@ -214,25 +212,25 @@
 	
 	// Bail if we haven't been handed decent data
 	NSArray *rawDataArray = propertyList;
-	if (rawDataArray && [rawDataArray isKindOfClass:[NSArray class]] && [rawDataArray count] >= 2) 
+	if (rawDataArray && [rawDataArray isKindOfClass:[NSArray class]] && rawDataArray.count >= 2) 
 	{
 		// Get the array of URLs and their titles
-		NSArray *URLStrings = [rawDataArray objectAtIndex:0];
-		NSArray *URLTitles = [rawDataArray objectAtIndex:1];
+		NSArray *URLStrings = rawDataArray[0];
+		NSArray *URLTitles = rawDataArray[1];
 		
 		
 		// Run through each URL
-		result = [NSMutableArray arrayWithCapacity:[URLStrings count]];
+		result = [NSMutableArray arrayWithCapacity:URLStrings.count];
 		
 		NSInteger i;
-		for (i=0; i<[URLStrings count]; i++)
+		for (i=0; i<URLStrings.count; i++)
 		{
 			// Convert the string to a proper URL. If actually valid, add it & title to the results
-			NSString *URLString = [URLStrings objectAtIndex:i];
+			NSString *URLString = URLStrings[i];
 			NSURL *URL = [KSURLFormatter URLFromString:URLString];	/// encodeLegally to handle accented characters
 			if (URL)
 			{
-				KSWebLocation *aWebLocation = [[KSWebLocation alloc] initWithURL:URL title:[URLTitles objectAtIndex:i]];
+				KSWebLocation *aWebLocation = [[KSWebLocation alloc] initWithURL:URL title:URLTitles[i]];
 				[result addObject:aWebLocation];
 				[aWebLocation release];
 			}
@@ -245,7 +243,7 @@
 + (NSArray *)webLocationsWithFilenamesPasteboardPropertyList:(id)propertyList;
 {
     NSArray *filenames = propertyList;
-    NSMutableArray *result = [NSMutableArray arrayWithCapacity:[filenames count]];
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:filenames.count];
     
     for (NSString *aFilename in filenames)
     {
@@ -276,10 +274,8 @@
     // Ideally we want to read multiple kUTTypeURLs, but this requires 10.6 or dropping down to CorePasteboard. So for now, fake it by falling back to NSFilenamesPboardType for file URLs (when possible)
     if ([type isEqualToString:(NSString *)kUTTypeFileURL])
     {
-        type = [self availableTypeFromArray:[NSArray arrayWithObjects:
-                                             NSFilenamesPboardType,
-                                             type,
-                                             nil]];
+        type = [self availableTypeFromArray:@[NSFilenamesPboardType,
+                                             type]];
     }
     
     
@@ -301,7 +297,7 @@
     else
     {
         KSWebLocation *webloc = [KSWebLocation webLocationFromPasteboard:self];
-        if (webloc) result = [NSArray arrayWithObject:webloc];
+        if (webloc) result = @[webloc];
     }
 
 	

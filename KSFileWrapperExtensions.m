@@ -33,18 +33,18 @@
 - (NSString *)addFileWrapper:(NSFileWrapper *)wrapper subdirectory:(NSString *)subpath;
 {
     // Create any directories required by the subpath
-    NSArray *components = [subpath pathComponents];
+    NSArray *components = subpath.pathComponents;
     NSFileWrapper *parentWrapper = self;
     
-    NSUInteger i, count = [components count];
+    NSUInteger i, count = components.count;
     for (i = 0; i < count; i++)
     {
-        NSString *aComponent = [components objectAtIndex:i];
-        NSFileWrapper *aWrapper = [[parentWrapper fileWrappers] objectForKey:aComponent];
+        NSString *aComponent = components[i];
+        NSFileWrapper *aWrapper = parentWrapper.fileWrappers[aComponent];
         if (!aWrapper)
         {
             aWrapper = [[NSFileWrapper alloc] initDirectoryWithFileWrappers:nil];
-            [aWrapper setPreferredFilename:aComponent];
+            aWrapper.preferredFilename = aComponent;
             [parentWrapper addFileWrapper:aWrapper];
             
 #if ! __has_feature(objc_arc)
@@ -62,13 +62,13 @@
 - (void)ks_removeAllVisibleFileWrappers;
 {
     // Leopard had a bug where -fileWrappers returns its own backing store, which means it will mutate while enumerating
-    NSDictionary *wrappers = [[self fileWrappers] copy];
+    NSDictionary *wrappers = [self.fileWrappers copy];
     
     for (NSString *aFilename in wrappers)
     {
         if (![aFilename hasPrefix:@"."])
         {
-            NSFileWrapper *aWrapper = [wrappers objectForKey:aFilename];
+            NSFileWrapper *aWrapper = wrappers[aFilename];
             [self removeFileWrapper:aWrapper];
         }
     }
@@ -89,7 +89,7 @@
     }
 #endif
     
-    NSFileWrapper *result = [[NSFileWrapper alloc] initWithURL:[self symbolicLinkDestinationURL]
+    NSFileWrapper *result = [[NSFileWrapper alloc] initWithURL:self.symbolicLinkDestinationURL
                                                        options:0
                                                          error:NULL];
     return [result autorelease];
@@ -104,7 +104,7 @@
 
 - (BOOL)ks_writeToURL:(NSURL *)URL options:(NSFileWrapperWritingOptions)options originalParentDirectoryURL:(NSURL *)originalParentDirectory copyIfLinkingFails:(BOOL)fallbackToCopy error:(NSError **)outError;
 {
-    NSString *filename = [self filename];
+    NSString *filename = self.filename;
     
     // The NSFileWrapper docs state:
     //
@@ -115,10 +115,10 @@
     // Does NSFileWrapper then sacrifice a little possible efficiency by only doing hardlinking if the filenames match too? i.e. that the filename being written to is the same as the source? If so, that would avoid this fasle positive. On the downside it would make adjusting filenames for existing files inside the package impossible to do efficiently, but that's pronbably not a big deal
     // I haven't devised a proper test of NSFileWrapper for this yet; just going to go ahead and do the filename check for now
     
-    NSURL *originalURL = ([filename isEqualToString:[URL lastPathComponent]] ? [originalParentDirectory URLByAppendingPathComponent:filename] : nil);
+    NSURL *originalURL = ([filename isEqualToString:URL.lastPathComponent] ? [originalParentDirectory URLByAppendingPathComponent:filename] : nil);
     
     // NSFileWrapper won't create hardlinks when writing an individual file, so we try to do so ourselves when reasonable, for performance reasons
-    if ([self isRegularFile])    
+    if (self.regularFile)    
     {
         // If the file is already inside a doc, we favour hardlinking for performance
         if ([self matchesContentsOfURL:originalURL])

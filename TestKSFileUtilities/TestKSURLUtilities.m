@@ -44,9 +44,9 @@
         // Whenever dealing with paths, NSURL always produces a URL with at least some kind of path component:
         //  e.g. http://example.com/ rather than http://example.com
         // This test needs to compensate by making sure the URLs to be tested match that
-        NSURL *nsurlsOpinion = [[[NSURL URLWithString:result relativeToURL:b] absoluteURL] standardizedURL];    // gotta do absoluteURL first apparently
-        if (![[nsurlsOpinion path] length]) nsurlsOpinion = [nsurlsOpinion ks_hostURL];
-        NSURL *urlWithPathAsNeeded = a; if (![[a path] length]) urlWithPathAsNeeded = [a ks_hostURL];
+        NSURL *nsurlsOpinion = [NSURL URLWithString:result relativeToURL:b].absoluteURL.standardizedURL;    // gotta do absoluteURL first apparently
+        if (!nsurlsOpinion.path.length) nsurlsOpinion = [nsurlsOpinion ks_hostURL];
+        NSURL *urlWithPathAsNeeded = a; if (!a.path.length) urlWithPathAsNeeded = [a ks_hostURL];
         
         XCTAssertEqual([nsurlsOpinion absoluteString], [urlWithPathAsNeeded absoluteString]);
     }
@@ -63,7 +63,7 @@
         
         // Percent encoding, but not for root URLs
         NSString *encodedSlash = @"%2F";
-        if (![[a relativeString] hasSuffix:encodedSlash] && a.path.length)
+        if (![a.relativeString hasSuffix:encodedSlash] && a.path.length)
         {
             NSURL *aWithCrazyEncoding = [NSURL URLWithString:[a.relativeString stringByAppendingString:encodedSlash] relativeToURL:a.baseURL];
             

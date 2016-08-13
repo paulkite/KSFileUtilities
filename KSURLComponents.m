@@ -41,11 +41,11 @@
 
 #pragma mark Lifecycle
 
-- (id)initWithURL:(NSURL *)url resolvingAgainstBaseURL:(BOOL)resolve;
+- (instancetype)initWithURL:(NSURL *)url resolvingAgainstBaseURL:(BOOL)resolve;
 {
 	if (!url) [NSException raise:NSInvalidArgumentException format:@"-[KSURLComponents %@] requires a non-nil URL", NSStringFromSelector(_cmd)];
 	
-    if (resolve) url = [url absoluteURL];
+    if (resolve) url = url.absoluteURL;
     CFStringRef urlString = CFURLGetString((CFURLRef)url);
     BOOL fudgedParsing = NO;
     
@@ -178,12 +178,12 @@
     return self;
 }
 
-+ (id)componentsWithURL:(NSURL *)url resolvingAgainstBaseURL:(BOOL)resolve;
++ (instancetype)componentsWithURL:(NSURL *)url resolvingAgainstBaseURL:(BOOL)resolve;
 {
     return [[[self alloc] initWithURL:url resolvingAgainstBaseURL:resolve] autorelease];
 }
 
-- (id)initWithString:(NSString *)URLString;
+- (instancetype)initWithString:(NSString *)URLString;
 {
     NSURL *url = [[NSURL alloc] initWithString:URLString];
     if (!url)
@@ -198,7 +198,7 @@
     return self;
 }
 
-+ (id)componentsWithString:(NSString *)URLString;
++ (instancetype)componentsWithString:(NSString *)URLString;
 {
     return [[[self alloc] initWithString:URLString] autorelease];
 }
@@ -236,7 +236,7 @@
     
     // If the KSURLComponents has an authority component (user, password, host or port) and a path component, then the path must either begin with "/" or be an empty string.
     if (hasAuthorityComponent &&
-        !(path.length == 0 || [path isAbsolutePath]))
+        !(path.length == 0 || path.absolutePath))
     {
         return nil;
     }
@@ -507,7 +507,7 @@
     if (myHost != otherHost && ![myHost isEqualToString:otherHost]) return NO;
     
     NSNumber *myPort = self.port;
-    NSNumber *otherPort = [(KSURLComponents *)object port];
+    NSNumber *otherPort = ((KSURLComponents *)object).port;
     if (myPort != otherPort && ![myPort isEqualToNumber:otherPort]) return NO;
     
     NSString *myPath = self.percentEncodedPath;
@@ -553,7 +553,7 @@
 
 - (NSString *)description;
 {
-    return [[super description] stringByAppendingFormat:
+    return [super.description stringByAppendingFormat:
             @" {scheme = %@, user = %@, password = %@, host = %@, port = %@, path = %@, query = %@, fragment = %@}",
             self.scheme,
             self.percentEncodedUser,

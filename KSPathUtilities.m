@@ -34,7 +34,7 @@
     NSUInteger  _suffix;
 }
 
-- (id)initWithBasePath:(NSString *)basePath suffix:(NSUInteger)suffix;
+- (instancetype)initWithBasePath:(NSString *)basePath suffix:(NSUInteger)suffix;
 @end
 
 
@@ -49,7 +49,7 @@
 {
     NSParameterAssert(path);
     
-    if (!directory || [path isAbsolutePath]) return path;
+    if (!directory || path.absolutePath) return path;
     
     NSString *result = [directory stringByAppendingPathComponent:path];
     return result;
@@ -59,11 +59,10 @@
 
 - (NSString *)ks_stringWithPathSuffix:(NSString *)aString;
 {
-    NSString *extension = [self pathExtension];
-    if ([extension length])
+    NSString *extension = self.pathExtension;
+    if (extension.length)
     {
-        NSString *result = [[[self
-                              stringByDeletingPathExtension]
+        NSString *result = [[self.stringByDeletingPathExtension
                              stringByAppendingString:aString]
                             stringByAppendingPathExtension:extension];
         return result;
@@ -154,8 +153,8 @@
 
 - (BOOL)ks_isEqualToPath:(NSString *)aPath;
 {
-    NSString *myPath = [self stringByStandardizingPath];
-    aPath = [aPath stringByStandardizingPath];
+    NSString *myPath = self.stringByStandardizingPath;
+    aPath = aPath.stringByStandardizingPath;
     
     BOOL result = ([myPath caseInsensitiveCompare:aPath] == NSOrderedSame);
     return result;
@@ -193,14 +192,14 @@
 
 - (NSString *)ks_pathRelativeToDirectory:(NSString *)dirPath
 {
-    if ([dirPath isAbsolutePath])
+    if (dirPath.absolutePath)
     {
-        if (![self isAbsolutePath]) return self;    // job's already done for us!
+        if (!self.absolutePath) return self;    // job's already done for us!
     }
     else
     {
         // An absolute path relative to a relative path is always going to be self
-        if ([self isAbsolutePath]) return self;
+        if (self.absolutePath) return self;
         
         // But comparing two relative paths is a bit of an edge case. Internally, pretend they're absolute
         dirPath = (dirPath ? [@"/" stringByAppendingString:dirPath] : @"/");
@@ -209,7 +208,7 @@
     
     
     // Determine the common ancestor directory containing both paths
-    __block NSRange mySearchRange = NSMakeRange(1, [self length] - 1);
+    __block NSRange mySearchRange = NSMakeRange(1, self.length - 1);
     NSMutableString *result = [NSMutableString string];
     
     
@@ -220,7 +219,7 @@
     }
     else
     {
-        __block NSRange dirSearchRange = NSMakeRange(1, [dirPath length] - 1);
+        __block NSRange dirSearchRange = NSMakeRange(1, dirPath.length - 1);
         
         [self ks_enumeratePathComponentsInRange:mySearchRange options:0 usingBlock:^(NSString *myComponent, NSRange myRange, NSRange enclosingRange, BOOL *stopOuter) {
             
@@ -254,7 +253,7 @@
             
             if (range.length == 2) NSAssert([dirPath compare:@".." options:NSLiteralSearch range:range] != NSOrderedSame, @".. unsupported: %@", dirPath);
             
-            if ([result length]) [result appendString:@"/"];
+            if (result.length) [result appendString:@"/"];
             [result appendString:@".."];
         }];
     }
@@ -268,15 +267,15 @@
         pathRelativeToCommonDir = [pathRelativeToCommonDir substringFromIndex:1];
     }
     
-    if ([pathRelativeToCommonDir length])
+    if (pathRelativeToCommonDir.length)
     {
-        if ([result length]) [result appendString:@"/"];
+        if (result.length) [result appendString:@"/"];
         [result appendString:pathRelativeToCommonDir];
     }
 	
     
     // Were the paths found to be equal?
-	if ([result length] == 0)
+	if (result.length == 0)
     {
         [result appendString:@"."];
         [result appendString:[self substringWithRange:mySearchRange]]; // match original's oddities
@@ -295,9 +294,9 @@
 {
     NSString *result = self;
     
-    while ([result length] > 1 && [result hasSuffix:@"/"]) // Stops @"/" being altered
+    while (result.length > 1 && [result hasSuffix:@"/"]) // Stops @"/" being altered
     {
-        result = [result substringToIndex:([result length] - 1)];
+        result = [result substringToIndex:(result.length - 1)];
     }
     
     return result;
@@ -320,7 +319,7 @@
 
 @implementation KSIncrementedPath
 
-- (id)initWithBasePath:(NSString *)basePath suffix:(NSUInteger)suffix;
+- (instancetype)initWithBasePath:(NSString *)basePath suffix:(NSUInteger)suffix;
 {
     NSParameterAssert(suffix >= 2);
     
@@ -340,7 +339,7 @@
 
 #pragma mark NSString Primitives
 
-- (NSUInteger)length; { return [_storage length]; }
+- (NSUInteger)length; { return _storage.length; }
 - (unichar)characterAtIndex:(NSUInteger)index; { return [_storage characterAtIndex:index]; }
 
 @end

@@ -42,7 +42,7 @@
 
 #pragma mark Init & Dealloc
 
-- (id)initWithURL:(NSURL *)URL title:(NSString *)name
+- (instancetype)initWithURL:(NSURL *)URL title:(NSString *)name
 {
 	NSParameterAssert(URL);
 	
@@ -55,12 +55,12 @@
 	return self;
 }
 
-- (id)initWithURL:(NSURL *)URL;
+- (instancetype)initWithURL:(NSURL *)URL;
 {
     return [self initWithURL:URL title:nil];
 }
 
-- (id)init
+- (instancetype)init
 {
 	return [self initWithURL:nil title:nil];
 }
@@ -83,16 +83,16 @@
 {
     return [NSString stringWithFormat:
             @"%@ %@ %@",
-            [super description],
-            [[self URL] absoluteString],
-            [self title]];
+            super.description,
+            self.URL.absoluteString,
+            self.title];
 }
 
 #pragma mark Equality
 
 - (NSUInteger)hash
 {
-	NSUInteger result = [[self URL] hash] | [[self title] hash];
+	NSUInteger result = self.URL.hash | self.title.hash;
 	return result;
 }
 
@@ -114,7 +114,7 @@
 
 - (BOOL)isEqualToWebLocation:(KSWebLocation *)aWebLocation
 {
-	BOOL result = [[aWebLocation URL] isEqual:[self URL]] && [[aWebLocation title] isEqualToString:[self title]];
+	BOOL result = [aWebLocation.URL isEqual:self.URL] && [aWebLocation.title isEqualToString:self.title];
 	return result;
 }
 
@@ -130,11 +130,11 @@
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
-	[encoder encodeObject:[self URL] forKey:@"URL"];
-	[encoder encodeObject:[self title] forKey:@"name"];
+	[encoder encodeObject:self.URL forKey:@"URL"];
+	[encoder encodeObject:self.title forKey:@"name"];
 }
 
-- (id)initWithCoder:(NSCoder *)decoder
+- (instancetype)initWithCoder:(NSCoder *)decoder
 {
 	if ((self = [super init]))
 	{
@@ -155,7 +155,7 @@
 	@try
 	{
 		FSRef theFSRef;
-		if (noErr == FSPathMakeRef((const UInt8 *)[aPath UTF8String], &theFSRef, NULL ))
+		if (noErr == FSPathMakeRef((const UInt8 *)aPath.UTF8String, &theFSRef, NULL ))
 		{
 			fileRef = FSOpenResFile(&theFSRef, fsRdPerm);
 			if (noErr == ResError())
@@ -174,7 +174,7 @@
 						// Create pascal string -- assume MacRoman encoding for resource names?
 						BOOL success = CFStringGetPascalString((CFStringRef)aName,
 															   pString,
-															   [aName length],
+															   aName.length,
 															   kCFStringEncodingMacRomanLatin1);
 						if (success)
 						{
@@ -222,9 +222,9 @@
 	return [[[self alloc] initWithContentsOfWeblocFile:weblocURL] autorelease];
 }
 
-- (id)initWithContentsOfWeblocFile:(NSURL *)weblocURL
+- (instancetype)initWithContentsOfWeblocFile:(NSURL *)weblocURL
 {
-	NSString *weblocPath = [weblocURL path];
+	NSString *weblocPath = weblocURL.path;
 	
 	// Use the Carbon Resource Manager to read 'url ' resource #256.
 	// String sems to be pre ASCII, with 2-bytes converted to % escapes

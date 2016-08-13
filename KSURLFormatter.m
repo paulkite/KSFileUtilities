@@ -51,7 +51,7 @@
         NSRange range = [(__bridge NSString *)escapedString rangeOfString:@"#"];
         if (range.location != NSNotFound)
         {
-            NSRange postFragmentRange = NSMakeRange(NSMaxRange(range), [(__bridge NSString *)escapedString length] - NSMaxRange(range));
+            NSRange postFragmentRange = NSMakeRange(NSMaxRange(range), ((__bridge NSString *)escapedString).length - NSMaxRange(range));
             range = [(__bridge NSString *)escapedString rangeOfString:@"#" options:0 range:postFragmentRange];
             
             if (range.location != NSNotFound)
@@ -82,13 +82,13 @@
     BOOL OK = (whereAt.location != NSNotFound && whereAt.location >= 1);	// make sure there is an @ and it's not the first character
 	if (OK)
 	{
-		NSInteger len = [address length] - whereAt.location;
+		NSInteger len = address.length - whereAt.location;
 		NSRange whereDot = [address rangeOfString:@"." options:0 range:NSMakeRange(whereAt.location, len)];
 		OK = (whereDot.location != NSNotFound);
 		if (OK)
 		{
 			// make sure there is room between the @ and the .
-			OK = (whereDot.location - whereAt.location >= 2) && ([address length] - whereDot.location >= 3);
+			OK = (whereDot.location - whereAt.location >= 2) && (address.length - whereDot.location >= 3);
 		}
 	}
 	return OK;
@@ -103,7 +103,7 @@
         if (URL)
         {
             // Account for strings like http://example.com/@foo which seem to be technically valid as an email address, but unlikely to be one
-            if ([URL scheme]) result = NO;
+            if (URL.scheme) result = NO;
         }
     }
     
@@ -112,7 +112,7 @@
 
 #pragma mark Init & Dealloc
 
-- (id)init
+- (instancetype)init
 {
     if (self = [super init])
     {
@@ -152,16 +152,16 @@
     NSURL *URL = anObject;
     
     NSString *result;
-    if ([self useDisplayNameForFileURLs] && [anObject isFileURL])
+    if (self.useDisplayNameForFileURLs && [anObject isFileURL])
     {
-        result = [[NSFileManager defaultManager] displayNameAtPath:[URL path]];
+        result = [[NSFileManager defaultManager] displayNameAtPath:URL.path];
     }
     else
     {
-        result = [URL absoluteString];
+        result = URL.absoluteString;
         
         // Append trailing slash if needed
-        if ([URL ks_hasNetworkLocation] && [[URL path] isEqualToString:@""])
+        if ([URL ks_hasNetworkLocation] && [URL.path isEqualToString:@""])
         {
             result = [result stringByAppendingString:@"/"];
         }
@@ -190,15 +190,15 @@
     
     
     // Allow fragment links as-is
-	if ([string hasPrefix:@"#"] && ([string length] > [@"#" length] && result))
+	if ([string hasPrefix:@"#"] && (string.length > (@"#").length && result))
     {
         return result;
     }
     
     
 	// This is probably a really naive check
-	if ((![result scheme] && ![string hasPrefix:@"/"]) ||   // e.g. foo
-        (![result host]))                                   // e.g. foo.com:8888
+	if ((!result.scheme && ![string hasPrefix:@"/"]) ||   // e.g. foo
+        (!result.host))                                   // e.g. foo.com:8888
 	{
         // if it looks like an email address, use mailto:
         if ([self isLikelyEmailAddress:string])
@@ -207,9 +207,9 @@
         }
 		else
         {
-            NSString *scheme = [result scheme];
+            NSString *scheme = result.scheme;
             
-            if (!scheme || (![result isFileURL] &&
+            if (!scheme || (!result.fileURL &&
                             [scheme caseInsensitiveCompare:@"javascript"] != NSOrderedSame))
             {
                 result = [self URLFromString:[NSString stringWithFormat:
@@ -223,9 +223,9 @@
     
     
     // Append a trailing slash if needed
-    if ([result ks_hasNetworkLocation] && [[result path] isEqualToString:@""])
+    if ([result ks_hasNetworkLocation] && [result.path isEqualToString:@""])
     {
-        result = [[NSURL URLWithString:@"/" relativeToURL:result] absoluteURL];
+        result = [NSURL URLWithString:@"/" relativeToURL:result].absoluteURL;
     }
 	
     return result;
@@ -236,9 +236,9 @@
     if (anObject)
     {
         NSURL *URL = [self URLFromString:string];
-        if ([self generatesURLStrings])
+        if (self.generatesURLStrings)
         {
-            *anObject = [URL absoluteString];
+            *anObject = URL.absoluteString;
         }
         else
         {
@@ -253,20 +253,20 @@
 {
     NSURL *result = nil;
     
-    if ([string length] > 0)
+    if (string.length > 0)
     {
-        result = [KSURLFormatter URLFromString:string defaultScheme:[self defaultScheme]];
+        result = [KSURLFormatter URLFromString:string defaultScheme:self.defaultScheme];
         
         
         // Does the URL have no useful resource specified? If so, generate nil URL
-        if (result && ![result isFileURL])
+        if (result && !result.fileURL)
         {
-            NSString *scheme = [result scheme];
+            NSString *scheme = result.scheme;
             if ([scheme caseInsensitiveCompare:@"mailto"] != NSOrderedSame &&
                 [scheme caseInsensitiveCompare:@"javascript"] != NSOrderedSame)
             {
-                NSString *resource = [result resourceSpecifier];
-                if ([resource length] == 0 ||
+                NSString *resource = result.resourceSpecifier;
+                if (resource.length == 0 ||
                     [resource isEqualToString:@"/"] ||
                     [resource isEqualToString:@"//"])
                 {
@@ -278,9 +278,9 @@
                 // URLs should also really have a host and a path
                 if (result)
                 {
-                    NSString *host = [result host];
-                    NSString *path = [result path];
-                    if (!host && !path && ![result fragment])
+                    NSString *host = result.host;
+                    NSString *path = result.path;
+                    if (!host && !path && !result.fragment)
                     {
                         result = nil;
                     }
@@ -290,26 +290,26 @@
         
         
         // Did the user not enter a top-level domain? We'll guess for them
-        if (result && ![result isFileURL] && [self fallbackTopLevelDomain])
+        if (result && !result.fileURL && self.fallbackTopLevelDomain)
         {
-            if ([[result ks_domains] count] == 1)
+            if ([result ks_domains].count == 1)
             {
                 NSString *urlString = [NSString stringWithFormat:
                                        @"%@://%@.%@/",
-                                       [result scheme],
-                                       [result host],
-                                       [self fallbackTopLevelDomain]];
+                                       result.scheme,
+                                       result.host,
+                                       self.fallbackTopLevelDomain];
                 result = [self URLFromString:urlString];
             }
         }
         
         
         // Make sure the scheme is allowed
-        NSArray *allowedSchemes = [self allowedSchemes];
+        NSArray *allowedSchemes = self.allowedSchemes;
         if (allowedSchemes)
         {
-            NSString *scheme = [result scheme];
-            if (scheme && ![allowedSchemes containsObject:[result scheme]])
+            NSString *scheme = result.scheme;
+            if (scheme && ![allowedSchemes containsObject:result.scheme])
             {
                 // Look for the best matching scheme based on the assumption that the URL was simply pasted in missing a small number of initial characters
                 for (NSString *aScheme in allowedSchemes)
@@ -322,7 +322,7 @@
                 }
                 
                 // Nothing matched? Alright, go for the first one then
-                result = [result ks_URLWithScheme:[allowedSchemes objectAtIndex:0]];
+                result = [result ks_URLWithScheme:allowedSchemes[0]];
             }
         }
     }

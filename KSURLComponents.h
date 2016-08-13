@@ -52,7 +52,7 @@
  @param url The URL whose components you want.
  @param resolve Whether to resolve relative URLs before retrieving components
  */
-- (id)initWithURL:(NSURL *)url resolvingAgainstBaseURL:(BOOL)resolve __attribute((nonnull));
+- (instancetype)initWithURL:(NSURL *)url resolvingAgainstBaseURL:(BOOL)resolve __attribute((nonnull));
 
 /**
  Initializes and returns a newly created `KSURLComponents` with the components of a URL.
@@ -67,21 +67,21 @@
  @param url The URL whose components you want.
  @param resolve Whether to resolve relative URLs before retrieving components
  */
-+ (id)componentsWithURL:(NSURL *)url resolvingAgainstBaseURL:(BOOL)resolve __attribute((nonnull));
++ (instancetype)componentsWithURL:(NSURL *)url resolvingAgainstBaseURL:(BOOL)resolve __attribute((nonnull));
 
 /**
  Initialize a `KSURLComponents` with a URL string.
  
  If the URLString is malformed, `nil` is returned.
  */
-- (id)initWithString:(NSString *)URLString;
+- (instancetype)initWithString:(NSString *)URLString;
 
 /**
  Initializes and returns a newly created `KSURLComponents` with a URL string.
  
  If the URLString is malformed, `nil` is returned.
  */
-+ (id)componentsWithString:(NSString *)URLString;
++ (instancetype)componentsWithString:(NSString *)URLString;
 
 /**
  Returns a URL created from the `KSURLComponents`.
@@ -92,7 +92,7 @@
  and has a path component, the path component must not start with `//`. If those
  requirements are not met, `nil` is returned.
  */
-- (NSURL *)URL;
+@property (nonatomic, readonly, copy) NSURL *URL;
 
 /**
  Returns a URL created from the `KSURLComponents` relative to a base URL.

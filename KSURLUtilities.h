@@ -33,9 +33,9 @@
 
 
 #pragma mark Host
-- (NSURL *)ks_hostURL;
-- (NSArray *)ks_domains;
-- (BOOL)ks_hasNetworkLocation; // checks for a host with 2+ domains
+@property (nonatomic, readonly, copy) NSURL *ks_hostURL;
+@property (nonatomic, readonly, copy) NSArray *ks_domains;
+@property (nonatomic, readonly) BOOL ks_hasNetworkLocation; // checks for a host with 2+ domains
 - (NSURL *)ks_URLWithHost:(NSString *)host; // swaps out host for a new one
 
 
@@ -45,7 +45,7 @@
 
 + (NSString *)ks_fileURLStringWithPath:(NSString *)path;
 
-- (BOOL)ks_hasDirectoryPath;
+@property (nonatomic, readonly) BOOL ks_hasDirectoryPath;
 - (NSURL *)ks_URLByAppendingPathComponent:(NSString *)pathComponent isDirectory:(BOOL)isDirectory;
 
 - (BOOL)ks_isSubpathOfURL:(NSURL *)aURL;
@@ -70,7 +70,7 @@
 
 
 #pragma mark RFC 1808
-- (BOOL)ks_canBeDecomposed;
+@property (nonatomic, readonly) BOOL ks_canBeDecomposed;
 
 
 #pragma mark Comparison
@@ -112,6 +112,6 @@
 - (NSString *)ks_stringByAddingPercentEscapesWithSpacesAsPlusCharacters:(BOOL)encodeSpacesAsPlusCharacters;
 - (NSString *)ks_stringByAddingPercentEscapesWithSpacesAsPlusCharacters:(BOOL)encodeSpacesAsPlusCharacters escape:(NSString *)toEscape;
 
-- (NSString *)ks_URLDirectoryPath;
+@property (nonatomic, readonly, copy) NSString *ks_URLDirectoryPath;
 
 @end

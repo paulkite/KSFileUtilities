@@ -78,7 +78,7 @@
 
 @interface NSURL (KSURLNormalization)
 
-- (NSURL *)ks_normalizedURL;
+@property (nonatomic, readonly, copy) NSURL *ks_normalizedURL;
 
 @end
 

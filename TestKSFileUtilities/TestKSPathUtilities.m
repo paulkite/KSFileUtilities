@@ -37,7 +37,7 @@
                  expectedResult,
                  result);
     
-    if (![path isAbsolutePath] && ![dirPath isAbsolutePath])
+    if (!path.absolutePath && !dirPath.absolutePath)
     {
         path = [@"/" stringByAppendingString:path];
         

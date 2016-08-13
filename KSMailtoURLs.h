@@ -40,6 +40,6 @@ extern NSString *KSURLMailtoHeaderBody;
 + (NSURL *)ks_mailtoURLWithEmailAddress:(NSString *)address headerLines:(NSDictionary *)headers;
 
 // Nil if its not a mailto URL or has no header lines
-- (NSDictionary *)ks_mailHeaderLines;
+@property (nonatomic, readonly, copy) NSDictionary *ks_mailHeaderLines;
 
 @end

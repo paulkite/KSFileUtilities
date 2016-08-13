@@ -17,7 +17,7 @@
 - (void)testAllowedSchemesWithString:(NSString *)urlString expectedURLString:(NSString *)expectedResult
 {
     KSURLFormatter *formatter = [[KSURLFormatter alloc] init];
-    [formatter setAllowedSchemes:[NSArray arrayWithObjects:@"http", @"https", @"file", nil]];
+    formatter.allowedSchemes = @[@"http", @"https", @"file"];
     
     NSURL *URL = [formatter URLFromString:urlString];
     XCTAssertEqual([URL absoluteString], expectedResult);

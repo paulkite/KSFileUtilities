@@ -53,7 +53,7 @@ NSString *KSURLMailtoHeaderBody = @"body";
     if (headers)
     {
         NSString *query = [self ks_queryWithParameters:headers];
-        if ([query length])
+        if (query.length)
         {
             string = [string stringByAppendingFormat:@"?%@", query];
         }
@@ -64,9 +64,9 @@ NSString *KSURLMailtoHeaderBody = @"body";
 
 - (NSDictionary *)ks_mailHeaderLines;
 {
-    if (![[self scheme] isEqualToString:KSURLMailtoScheme]) return nil;
+    if (![self.scheme isEqualToString:KSURLMailtoScheme]) return nil;
     
-    NSString *urlString = [self absoluteString];
+    NSString *urlString = self.absoluteString;
     NSRange queryIndicatorRange = [urlString rangeOfString:@"?"];
     
     if (queryIndicatorRange.location != NSNotFound)

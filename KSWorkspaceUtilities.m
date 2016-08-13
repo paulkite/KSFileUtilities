@@ -46,7 +46,7 @@
 - (void)ks_setBundleBit:(BOOL)flag forFileAtURL:(NSURL *)url;
 {
 	FSRef fileRef;
-	OSErr error = FSPathMakeRef((UInt8 *)[[url path] fileSystemRepresentation], &fileRef, NULL);
+	OSErr error = FSPathMakeRef((UInt8 *)url.path.fileSystemRepresentation, &fileRef, NULL);
 	
 	// Get the file's current info
 	FSCatalogInfo fileInfo;
