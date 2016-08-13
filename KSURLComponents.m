@@ -79,7 +79,6 @@
                                    atIndex:(schemeRange.length + 1)];   // after the colon
                 
                 url = [NSURL URLWithString:fudgedString];
-                [fudgedString release];
                 urlString = CFURLGetString((CFURLRef)url);
                 
                 fudgedParsing = YES;
@@ -180,7 +179,7 @@
 
 + (instancetype)componentsWithURL:(NSURL *)url resolvingAgainstBaseURL:(BOOL)resolve;
 {
-    return [[[self alloc] initWithURL:url resolvingAgainstBaseURL:resolve] autorelease];
+    return [[self alloc] initWithURL:url resolvingAgainstBaseURL:resolve];
 }
 
 - (instancetype)initWithString:(NSString *)URLString;
@@ -188,34 +187,20 @@
     NSURL *url = [[NSURL alloc] initWithString:URLString];
     if (!url)
     {
-        [self release]; return nil;
+         return nil;
     }
     
     self = [self initWithURL:url
      resolvingAgainstBaseURL:NO];   // already absolute
     
-    [url release];
     return self;
 }
 
 + (instancetype)componentsWithString:(NSString *)URLString;
 {
-    return [[[self alloc] initWithString:URLString] autorelease];
+    return [[self alloc] initWithString:URLString];
 }
 
-- (void)dealloc;
-{
-    [_schemeComponent release];
-    [_userComponent release];
-    [_passwordComponent release];
-    [_hostComponent release];
-    [_portComponent release];
-    [_pathComponent release];
-    [_queryComponent release];
-    [_fragmentComponent release];
-    
-    [super dealloc];
-}
 
 #pragma mark Generating a URL
 
@@ -299,7 +284,6 @@
     }
     
     NSURL *result = [NSURL URLWithString:string relativeToURL:baseURL];
-    [string release];
     return result;
 }
 
@@ -319,7 +303,7 @@
     }
     
     scheme = [scheme copy];
-    [_schemeComponent release]; _schemeComponent = scheme;
+     _schemeComponent = scheme;
 }
 
 @synthesize percentEncodedUser = _userComponent;
@@ -420,7 +404,7 @@
     if (port.integerValue < 0) [NSException raise:NSInvalidArgumentException format:@"Invalid port: %@; can't be negative", port];
     
     port = [port copy];
-    [_portComponent release]; _portComponent = port;
+     _portComponent = port;
 }
 
 @synthesize percentEncodedPath = _pathComponent;

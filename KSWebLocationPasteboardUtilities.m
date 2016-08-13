@@ -92,7 +92,6 @@
     if (URL)
     {
         self = [self initWithURL:URL title:[[self class] guessTitleForURL:URL]];
-        [URL release];
     }
     
     // Fallback to trying to get a string out of the plist
@@ -108,7 +107,7 @@
             }
         }
         
-        [self release]; self = nil;
+         self = nil;
 	}
         
     return self;
@@ -195,7 +194,6 @@
 				
 				KSWebLocation *webLoc = [[KSWebLocation alloc] initWithURL:URL title:title];
 				result = @[webLoc];
-				[webLoc release];
 			}
 		}
 	}
@@ -232,7 +230,6 @@
 			{
 				KSWebLocation *aWebLocation = [[KSWebLocation alloc] initWithURL:URL title:URLTitles[i]];
 				[result addObject:aWebLocation];
-				[aWebLocation release];
 			}
 		}
 	}
@@ -250,7 +247,6 @@
         NSURL *URL = [NSURL fileURLWithPath:aFilename];
         KSWebLocation *aLocation = [[KSWebLocation alloc] initWithURL:URL title:[[self class] guessTitleForURL:URL]];
         [result addObject:aLocation];
-        [aLocation release];
     }
     
     return result;

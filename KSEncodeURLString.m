@@ -35,7 +35,7 @@
 - (id)transformedValue:(id)value;
 {
     static NSPasteboard *pboard;
-    if (!pboard) pboard = [[NSPasteboard pasteboardWithUniqueName] retain];
+    if (!pboard) pboard = [NSPasteboard pasteboardWithUniqueName];
     
     [pboard clearContents];
     [pboard writeObjects:@[value]];

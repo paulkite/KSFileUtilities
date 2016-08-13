@@ -87,10 +87,9 @@ typedef NS_ENUM(NSInteger, ks_URLPart)
             norm = [norm ks_URLByRemovingDirectoryIndex];
         }
         norm = [norm ks_URLByRemovingFragment];
-        [norm retain];
     }
     
-    return [norm autorelease];
+    return norm;
 }
 
 
@@ -191,7 +190,7 @@ typedef NS_ENUM(NSInteger, ks_URLPart)
         // We have to work around those issues here.
         // Get the length of un-escaped path by comparing the length of complete URL to URL with path stripped.
         NSInteger urlLength = self.absoluteString.length;
-        NSURL *rootPathURL = [[self copy] autorelease];
+        NSURL *rootPathURL = [self copy];
         NSArray *pathComponents = rootPathURL.pathComponents;
         NSInteger cnt = pathComponents.count;
         for (NSInteger i = cnt; i > 1; i--)
@@ -474,7 +473,7 @@ typedef NS_ENUM(NSInteger, ks_URLPart)
     // Replace all duplicate slashes ("//") except if preceeded by ":"
     
     // NOTE: This method does not depend on the -ks_replacementRangeOfURLPart: method. This is required because all the URL ranges for the path and later URL components depend on this method being called on the URL first.
-    NSMutableString *abs = [[self.absoluteString mutableCopy] autorelease];
+    NSMutableString *abs = [self.absoluteString mutableCopy];
     NSRange schemeSlashesRange = [abs rangeOfString:@"://"];
     NSRange replaceRange;
     if (NSNotFound == schemeSlashesRange.location)

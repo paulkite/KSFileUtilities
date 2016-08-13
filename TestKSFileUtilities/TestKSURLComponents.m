@@ -99,7 +99,6 @@
 {
     KSURLComponents *components = [[KSURLComponents alloc] init];
     XCTAssertThrowsSpecificNamed(components.scheme = @"!*'();:@&=+$,/?#[]", NSException, NSInvalidArgumentException);
-    [components release];
 }
 
 - (void)testUserEscaping;
@@ -109,7 +108,6 @@
     components.user = @"!*'();:@&=+$,/?#[]";
     XCTAssertEqual(components.percentEncodedUser, @"!*'();%3A%40&=+$,%2F%3F%23%5B%5D");
     
-    [components release];
 }
 
 - (void)testPasswordEscaping;
@@ -119,7 +117,6 @@
     components.password = @"!*'();:@&=+$,/?#[]";
     XCTAssertEqual(components.percentEncodedPassword, @"!*'();%3A%40&=+$,%2F%3F%23%5B%5D");
     
-    [components release];
 }
 
 - (void)testHostEscaping;
@@ -129,7 +126,6 @@
     components.host = @"!*'();:@&=+$,/?#[]";
     XCTAssertEqual(components.percentEncodedHost, @"!*'();%3A%40&=+$,%2F%3F%23%5B%5D");
     
-    [components release];
 }
 
 - (void)testLiteralHostEscaping;
@@ -139,7 +135,6 @@
     components.host = @"[!*'();:@&=+$,/?#[]]";
     XCTAssertEqual(components.percentEncodedHost, @"[!*'();:%40&=+$,%2F%3F%23%5B%5D]", @"Bracketing in [ ] indicates a literal host, which is allowed to contain : characters, e.g. for IPv6 addresses");
     
-    [components release];
 }
 
 - (void)testPathEscaping;
@@ -149,7 +144,6 @@
     components.path = @"!*'();:@&=+$,/?#[]";
     XCTAssertEqual(components.percentEncodedPath, @"!*'()%3B%3A@&=+$,/%3F%23%5B%5D");
     
-    [components release];
 }
 
 - (void)testQueryEscaping;
@@ -159,7 +153,6 @@
     components.query = @"!*'();:@&=+$,/?#[]";
     XCTAssertEqual(components.percentEncodedQuery, @"!*'();:@&=+$,/?%23%5B%5D");
     
-    [components release];
 }
 
 - (void)testFragmentEscaping;
@@ -169,7 +162,6 @@
     components.fragment = @"!*'();:@&=+$,/?#[]";
     XCTAssertEqual(components.percentEncodedFragment, @"!*'();:@&=+$,/?%23%5B%5D");
     
-    [components release];
 }
 
 #pragma mark Creating a URL
@@ -189,7 +181,6 @@
     NSURL *url = [components URL];
     XCTAssertEqual(url.relativeString, @"scheme://user:password@host:0/path?query#fragment");
     
-    [components release];
 }
 
 - (void)testURLFromScheme;
@@ -345,7 +336,6 @@
     NSURL *url = [components URL];
     XCTAssertNil(url, @"If the KSURLComponents does not have an authority component (user, password, host or port) and has a path component, the path component must not start with \"//\"");
     
-    [components release];
 }
 
 #pragma mark NSCopying
@@ -358,7 +348,6 @@
     KSURLComponents *components2 = [components copy];
     
     XCTAssertEqual(components, components2);
-    [components2 release];
 }
 
 @end

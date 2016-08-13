@@ -37,7 +37,7 @@
 
 + (instancetype)webLocationWithURL:(NSURL *)URL title:(NSString *)title
 {
-	return [[[self alloc] initWithURL:URL title:title] autorelease];
+	return [[self alloc] initWithURL:URL title:title];
 }
 
 #pragma mark Init & Dealloc
@@ -65,13 +65,6 @@
 	return [self initWithURL:nil title:nil];
 }
 
-- (void)dealloc
-{
-	[_URL release];
-	[_title release];
-	
-	[super dealloc];
-}
 
 #pragma mark Accessors
 
@@ -123,7 +116,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
 	// KSWebLocations are effectively immutable (could add a mutable subclass if needed in the future) so retain
-	return [self retain];
+	return self;
 }
 
 #pragma mark Archiving
@@ -138,8 +131,8 @@
 {
 	if ((self = [super init]))
 	{
-		_URL = [[decoder decodeObjectForKey:@"URL"] retain];
-		_title = [[decoder decodeObjectForKey:@"name"] retain];
+		_URL = [decoder decodeObjectForKey:@"URL"];
+		_title = [decoder decodeObjectForKey:@"name"];
 	}
 	
 	return self;
@@ -219,7 +212,7 @@
 
 + (instancetype)webLocationWithContentsOfWeblocFile:(NSURL *)weblocURL
 {
-	return [[[self alloc] initWithContentsOfWeblocFile:weblocURL] autorelease];
+	return [[self alloc] initWithContentsOfWeblocFile:weblocURL];
 }
 
 - (instancetype)initWithContentsOfWeblocFile:(NSURL *)weblocURL
@@ -235,7 +228,6 @@
 	
 	NSString *URLString = [[NSString alloc] initWithData:urlData encoding:NSASCIIStringEncoding];
 	NSURL *URL = [KSURLFormatter URLFromString:URLString];
-    [URLString release];
 	
 	
 	// Use the Carbon Resource Manager to read 'urln' resource #256.
@@ -250,7 +242,6 @@
 	
 	self = [self initWithURL:URL title:nameString];
     
-    [nameString release];
     return self;
 }
 

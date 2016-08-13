@@ -73,7 +73,6 @@
         }
     }
     
-    [wrappers release];
 }
 
 #pragma mark Symlinks
@@ -92,7 +91,7 @@
     NSFileWrapper *result = [[NSFileWrapper alloc] initWithURL:self.symbolicLinkDestinationURL
                                                        options:0
                                                          error:NULL];
-    return [result autorelease];
+    return result;
 }
 
 #pragma mark Writing Files

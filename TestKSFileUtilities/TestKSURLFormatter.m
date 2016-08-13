@@ -22,7 +22,6 @@
     NSURL *URL = [formatter URLFromString:urlString];
     XCTAssertEqual([URL absoluteString], expectedResult);
     
-    [formatter release];
 }
 
 - (void)testAllowedSchemesPrimary;
@@ -58,7 +57,6 @@
     NSURL *URL = [formatter URLFromString:string];
     XCTAssertEqual([URL absoluteString], string);
     
-    [formatter release];
 }
 
 - (void)testPercentEncoding
@@ -93,7 +91,6 @@
     XCTAssertEqual([formatter stringForObjectValue:[NSURL URLWithString:@"http://www.xn--exmple-cub.com/"]], @"http://www.xn--exmple-cub.com/");
     
     
-    [formatter release];
 }
 
 - (void)testDoubleFragment;
@@ -103,7 +100,6 @@
     NSURL *URL = [formatter URLFromString:@"http://example.com/path#fragment#fake"];
     XCTAssertEqual([URL absoluteString], @"http://example.com/path#fragment%23fake");
     
-    [formatter release];
 }
 
 - (void)testValidEmailAddress
