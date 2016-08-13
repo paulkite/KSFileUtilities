@@ -7,11 +7,11 @@
 //
 
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "KSURLUtilities.h"
 
 
-@interface TestKSURLUtilities : SenTestCase
+@interface TestKSURLUtilities : XCTestCase
 @end
 
 
@@ -30,7 +30,7 @@
     // Regular
     NSString *result = [a ks_stringRelativeToURL:b];
     
-    STAssertTrue([result isEqualToString:expectedResult],
+    XCTAssertTrue([result isEqualToString:expectedResult],
                  @"\'%@\' relative to \'%@\' should be \'%@\' instead of \'%@\'",
                  a,
                  b,
@@ -48,12 +48,7 @@
         if (![[nsurlsOpinion path] length]) nsurlsOpinion = [nsurlsOpinion ks_hostURL];
         NSURL *urlWithPathAsNeeded = a; if (![[a path] length]) urlWithPathAsNeeded = [a ks_hostURL];
         
-        STAssertEqualObjects([nsurlsOpinion absoluteString], [urlWithPathAsNeeded absoluteString],
-                             @"(\'%@\' relative to \'%@\')",
-                             result,
-                             b,
-                             [urlWithPathAsNeeded absoluteString],
-                             nsurlsOpinion);
+        XCTAssertEqual([nsurlsOpinion absoluteString], [urlWithPathAsNeeded absoluteString]);
     }
     
     
@@ -147,71 +142,70 @@
     
     
     // Crashed at one point
-    STAssertEqualObjects([URL(@"") ks_stringRelativeToURL:URL(@"http://example.com/foo/")], nil,
-                         nil);
+    XCTAssertNil([URL(@"") ks_stringRelativeToURL:URL(@"http://example.com/foo/")]);
 }
 
 - (void)testHostSwapping;
 {
-    STAssertEqualObjects([URL(@"http://example.com") ks_URLWithHost:@"test.net"], URL(@"http://test.net"), nil);
-    STAssertEqualObjects([URL(@"http://example.com/") ks_URLWithHost:@"test.net"], URL(@"http://test.net/"), nil);
+    XCTAssertEqual([URL(@"http://example.com") ks_URLWithHost:@"test.net"], URL(@"http://test.net"));
+    XCTAssertEqual([URL(@"http://example.com/") ks_URLWithHost:@"test.net"], URL(@"http://test.net/"));
 
-    STAssertEqualObjects([URL(@"file:///example.png") ks_URLWithHost:@"example.com"], URL(@"file://example.com/example.png"), nil);
-    STAssertEqualObjects([URL(@"file:///") ks_URLWithHost:@"example.com"], URL(@"file://example.com/"), nil);
-    STAssertEqualObjects([URL(@"test:///example.png#fragment") ks_URLWithHost:@"example.com"], URL(@"test://example.com/example.png#fragment"), nil);
-    STAssertEqualObjects([URL(@"test:///#fragment") ks_URLWithHost:@"example.com"], URL(@"test://example.com/#fragment"), nil);
+    XCTAssertEqual([URL(@"file:///example.png") ks_URLWithHost:@"example.com"], URL(@"file://example.com/example.png"));
+    XCTAssertEqual([URL(@"file:///") ks_URLWithHost:@"example.com"], URL(@"file://example.com/"));
+    XCTAssertEqual([URL(@"test:///example.png#fragment") ks_URLWithHost:@"example.com"], URL(@"test://example.com/example.png#fragment"));
+    XCTAssertEqual([URL(@"test:///#fragment") ks_URLWithHost:@"example.com"], URL(@"test://example.com/#fragment"));
 
-    STAssertEqualObjects([URL(@"test://") ks_URLWithHost:@"example.com"], URL(@"test://example.com"), nil);
-    STAssertEqualObjects([URL(@"test://#fragment") ks_URLWithHost:@"example.com"], URL(@"test://example.com#fragment"), nil);
-    STAssertEqualObjects([URL(@"test://joe@:1234#fragment") ks_URLWithHost:@"example.com"], URL(@"test://joe@example.com:1234#fragment"), nil);
+    XCTAssertEqual([URL(@"test://") ks_URLWithHost:@"example.com"], URL(@"test://example.com"));
+    XCTAssertEqual([URL(@"test://#fragment") ks_URLWithHost:@"example.com"], URL(@"test://example.com#fragment"));
+    XCTAssertEqual([URL(@"test://joe@:1234#fragment") ks_URLWithHost:@"example.com"], URL(@"test://joe@example.com:1234#fragment"));
 
     // I'm not convinced about this one. The URL test:example.com/ doesn't recognise example.com as the host
-    STAssertEqualObjects([URL(@"test:/") ks_URLWithHost:@"example.com"], URL(@"test:example.com/"), nil);
+    XCTAssertEqual([URL(@"test:/") ks_URLWithHost:@"example.com"], URL(@"test:example.com/"));
 }
 
 - (void)testURLHasDirectoryPath;
 {
-    STAssertFalse([[NSURL URLWithString:@"http://example.com/foo"] ks_hasDirectoryPath], @"No trailing slash");
-    STAssertTrue([[NSURL URLWithString:@"http://example.com/foo/"] ks_hasDirectoryPath], @"Trailing slash");
+    XCTAssertFalse([[NSURL URLWithString:@"http://example.com/foo"] ks_hasDirectoryPath], @"No trailing slash");
+    XCTAssertTrue([[NSURL URLWithString:@"http://example.com/foo/"] ks_hasDirectoryPath], @"Trailing slash");
     
-    STAssertFalse([[NSURL URLWithString:@"http://example.com"] ks_hasDirectoryPath], @"No trailing slash");
-    STAssertTrue([[NSURL URLWithString:@"http://example.com/"] ks_hasDirectoryPath], @"Trailing slash");
+    XCTAssertFalse([[NSURL URLWithString:@"http://example.com"] ks_hasDirectoryPath], @"No trailing slash");
+    XCTAssertTrue([[NSURL URLWithString:@"http://example.com/"] ks_hasDirectoryPath], @"Trailing slash");
     
-    STAssertFalse([[NSURL URLWithString:@"foo" relativeToURL:[NSURL URLWithString:@"http://example.com/"]] ks_hasDirectoryPath], @"No trailing slash");
-    STAssertTrue([[NSURL URLWithString:@"foo/" relativeToURL:[NSURL URLWithString:@"http://example.com/"]] ks_hasDirectoryPath], @"Trailing slash");
+    XCTAssertFalse([[NSURL URLWithString:@"foo" relativeToURL:[NSURL URLWithString:@"http://example.com/"]] ks_hasDirectoryPath], @"No trailing slash");
+    XCTAssertTrue([[NSURL URLWithString:@"foo/" relativeToURL:[NSURL URLWithString:@"http://example.com/"]] ks_hasDirectoryPath], @"Trailing slash");
     
-    STAssertFalse([[NSURL URLWithString:@"bar" relativeToURL:[NSURL URLWithString:@"http://example.com/foo/"]] ks_hasDirectoryPath], @"No trailing slash");
-    STAssertTrue([[NSURL URLWithString:@"bar/" relativeToURL:[NSURL URLWithString:@"http://example.com/foo"]] ks_hasDirectoryPath], @"Trailing slash");
+    XCTAssertFalse([[NSURL URLWithString:@"bar" relativeToURL:[NSURL URLWithString:@"http://example.com/foo/"]] ks_hasDirectoryPath], @"No trailing slash");
+    XCTAssertTrue([[NSURL URLWithString:@"bar/" relativeToURL:[NSURL URLWithString:@"http://example.com/foo"]] ks_hasDirectoryPath], @"Trailing slash");
     
-    STAssertFalse([[NSURL URLWithString:@"#anchor" relativeToURL:[NSURL URLWithString:@"http://example.com/foo"]] ks_hasDirectoryPath], @"No trailing slash");
-    STAssertTrue([[NSURL URLWithString:@"#anchor" relativeToURL:[NSURL URLWithString:@"http://example.com/foo/"]] ks_hasDirectoryPath], @"Trailing slash");
+    XCTAssertFalse([[NSURL URLWithString:@"#anchor" relativeToURL:[NSURL URLWithString:@"http://example.com/foo"]] ks_hasDirectoryPath], @"No trailing slash");
+    XCTAssertTrue([[NSURL URLWithString:@"#anchor" relativeToURL:[NSURL URLWithString:@"http://example.com/foo/"]] ks_hasDirectoryPath], @"Trailing slash");
 }
 
 - (void)testIsSubpath;
 {
-    STAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/foo")], nil);
-    STAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/foo/")], nil);
-    STAssertFalse([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/fo")], nil);
-    STAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/")], nil);
-    STAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com")], nil);
+    XCTAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/foo")]);
+    XCTAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/foo/")]);
+    XCTAssertFalse([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/fo")]);
+    XCTAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/")]);
+    XCTAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com")]);
     
     // Scheme and host should be case insensitive
-    STAssertTrue([URL(@"HTtp://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"hTtP://example.com/foo/")], nil);
-    STAssertTrue([URL(@"http://eXaMPle.COm/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://ExamPle.cOm/foo/")], nil);
+    XCTAssertTrue([URL(@"HTtp://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"hTtP://example.com/foo/")]);
+    XCTAssertTrue([URL(@"http://eXaMPle.COm/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://ExamPle.cOm/foo/")]);
     
     // Treat items as being subpaths of themselves
-    STAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/foo/bar/baz.html")], nil);
-    STAssertTrue([URL(@"http://example.com/foo/bar/baz.html/") ks_isSubpathOfURL:URL(@"http://example.com/foo/bar/baz.html")], nil);
-    STAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/foo/bar/baz.html/")], nil);
-    STAssertTrue([URL(@"http://example.com/foo/bar/baz.html/") ks_isSubpathOfURL:URL(@"http://example.com/foo/bar/baz.html/")], nil);
-    STAssertTrue([URL(@"http://example.com/foo") ks_isSubpathOfURL:URL(@"http://example.com/foo")], nil);
-    STAssertTrue([URL(@"http://example.com/foo/") ks_isSubpathOfURL:URL(@"http://example.com/foo")], nil);
-    STAssertTrue([URL(@"http://example.com/foo") ks_isSubpathOfURL:URL(@"http://example.com/foo/")], nil);
-    STAssertTrue([URL(@"http://example.com/foo/") ks_isSubpathOfURL:URL(@"http://example.com/foo/")], nil);
-    STAssertTrue([URL(@"http://example.com") ks_isSubpathOfURL:URL(@"http://example.com")], nil);
-    STAssertTrue([URL(@"http://example.com/") ks_isSubpathOfURL:URL(@"http://example.com")], nil);
-    STAssertTrue([URL(@"http://example.com") ks_isSubpathOfURL:URL(@"http://example.com/")], nil);
-    STAssertTrue([URL(@"http://example.com/") ks_isSubpathOfURL:URL(@"http://example.com/")], nil);
+    XCTAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/foo/bar/baz.html")]);
+    XCTAssertTrue([URL(@"http://example.com/foo/bar/baz.html/") ks_isSubpathOfURL:URL(@"http://example.com/foo/bar/baz.html")]);
+    XCTAssertTrue([URL(@"http://example.com/foo/bar/baz.html") ks_isSubpathOfURL:URL(@"http://example.com/foo/bar/baz.html/")]);
+    XCTAssertTrue([URL(@"http://example.com/foo/bar/baz.html/") ks_isSubpathOfURL:URL(@"http://example.com/foo/bar/baz.html/")]);
+    XCTAssertTrue([URL(@"http://example.com/foo") ks_isSubpathOfURL:URL(@"http://example.com/foo")]);
+    XCTAssertTrue([URL(@"http://example.com/foo/") ks_isSubpathOfURL:URL(@"http://example.com/foo")]);
+    XCTAssertTrue([URL(@"http://example.com/foo") ks_isSubpathOfURL:URL(@"http://example.com/foo/")]);
+    XCTAssertTrue([URL(@"http://example.com/foo/") ks_isSubpathOfURL:URL(@"http://example.com/foo/")]);
+    XCTAssertTrue([URL(@"http://example.com") ks_isSubpathOfURL:URL(@"http://example.com")]);
+    XCTAssertTrue([URL(@"http://example.com/") ks_isSubpathOfURL:URL(@"http://example.com")]);
+    XCTAssertTrue([URL(@"http://example.com") ks_isSubpathOfURL:URL(@"http://example.com/")]);
+    XCTAssertTrue([URL(@"http://example.com/") ks_isSubpathOfURL:URL(@"http://example.com/")]);
 }
 
 #pragma mark Foundation
@@ -221,59 +215,59 @@
 
 - (void)testIsFileURL;
 {
-    STAssertTrue([URL(@"file:///example.png") isFileURL], nil);
-    STAssertTrue([URL(@"fIlE:///example.png") isFileURL], nil);
+    XCTAssertTrue([URL(@"file:///example.png") isFileURL]);
+    XCTAssertTrue([URL(@"fIlE:///example.png") isFileURL]);
 }
 
 - (void)testNilURLStrings;
 {
     // As far as I can tell, the behaviour of +URLWithString: changed in OS X 10.7
 #if (defined MAC_OS_X_VERSION_10_7 && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7)
-    STAssertNoThrow([NSURL URLWithString:nil], nil);
-    STAssertNoThrow([NSURL URLWithString:nil relativeToURL:nil], nil);
-    STAssertNoThrow([NSURL URLWithString:nil relativeToURL:URL(@"http://example.com/")], nil);
+    XCTAssertNoThrow([NSURL URLWithString:nil]);
+    XCTAssertNoThrow([NSURL URLWithString:nil relativeToURL:nil]);
+    XCTAssertNoThrow([NSURL URLWithString:nil relativeToURL:URL(@"http://example.com/")]);
 #else
-    STAssertThrows([NSURL URLWithString:nil], nil);
-    STAssertThrows([NSURL URLWithString:nil relativeToURL:nil], nil);
-    STAssertThrows([NSURL URLWithString:nil relativeToURL:URL(@"http://example.com/")], nil);
+    XCTAssertThrows([NSURL URLWithString:nil]);
+    XCTAssertThrows([NSURL URLWithString:nil relativeToURL:nil]);
+    XCTAssertThrows([NSURL URLWithString:nil relativeToURL:URL(@"http://example.com/")]);
 #endif
     
     // Other methods appear to still behave as they always have
-    STAssertThrows([[NSURL alloc] initWithString:nil], nil);
-    STAssertThrows([[NSURL alloc] initWithString:nil relativeToURL:nil], nil);
-    STAssertThrows([NSURL fileURLWithPath:nil], nil);
-    STAssertThrows([[NSURL alloc] initFileURLWithPath:nil], nil);
+    XCTAssertThrows([[NSURL alloc] initWithString:nil]);
+    XCTAssertThrows([[NSURL alloc] initWithString:nil relativeToURL:nil]);
+    XCTAssertThrows([NSURL fileURLWithPath:nil]);
+    XCTAssertThrows([[NSURL alloc] initFileURLWithPath:nil]);
 }
 
 - (void)testDeletingLastPathComponent;
 {
-    STAssertEqualObjects([URL(@"http://example.com/foo/bar") URLByDeletingLastPathComponent], URL(@"http://example.com/foo/"), nil);
-    STAssertEqualObjects([URL(@"http://example.com/foo/bar/") URLByDeletingLastPathComponent], URL(@"http://example.com/foo/"), nil);
+    XCTAssertEqual([URL(@"http://example.com/foo/bar") URLByDeletingLastPathComponent], URL(@"http://example.com/foo/"));
+    XCTAssertEqual([URL(@"http://example.com/foo/bar/") URLByDeletingLastPathComponent], URL(@"http://example.com/foo/"));
     
     // But as soon as we introduce another slash, NSURL cocks it up, or maybe just hedges its bets
-    STAssertEqualObjects([URL(@"http://example.com/foo/bar//") URLByDeletingLastPathComponent], URL(@"http://example.com/foo/bar//../"), nil);
+    XCTAssertEqual([URL(@"http://example.com/foo/bar//") URLByDeletingLastPathComponent], URL(@"http://example.com/foo/bar//../"));
     
     // The CF-level API behaves the same
-    STAssertEqualObjects((NSURL *)CFURLCreateCopyDeletingLastPathComponent(NULL, (CFURLRef)URL(@"http://example.com/foo/bar//")), URL(@"http://example.com/foo/bar//../"), nil);
+    XCTAssertEqual((NSURL *)CFURLCreateCopyDeletingLastPathComponent(NULL, (CFURLRef)URL(@"http://example.com/foo/bar//")), URL(@"http://example.com/foo/bar//../"));
     
     
     
     // The behaviour makes some sense when faced with a root URL
-    STAssertEqualObjects([URL(@"http://example.com/") URLByDeletingLastPathComponent], URL(@"http://example.com/../"), nil);
-    STAssertEqualObjects([URL(@"http://example.com//") URLByDeletingLastPathComponent], URL(@"http://example.com//../"), nil);
+    XCTAssertEqual([URL(@"http://example.com/") URLByDeletingLastPathComponent], URL(@"http://example.com/../"));
+    XCTAssertEqual([URL(@"http://example.com//") URLByDeletingLastPathComponent], URL(@"http://example.com//../"));
 }
 
 - (void)testStandardizedURL;
 {
-    STAssertEqualObjects([URL(@"http://example.com/foo/../bar") standardizedURL], URL(@"http://example.com/bar"), nil);
-    STAssertEqualObjects([URL(@"http://example.com/foo/../bar/") standardizedURL], URL(@"http://example.com/bar/"), nil);
+    XCTAssertEqual([URL(@"http://example.com/foo/../bar") standardizedURL], URL(@"http://example.com/bar"));
+    XCTAssertEqual([URL(@"http://example.com/foo/../bar/") standardizedURL], URL(@"http://example.com/bar/"));
     
     // Throw in an extra slash though and the system can get quite confused. Some make sense:
-    STAssertEqualObjects([URL(@"http://example.com/foo/..//bar") standardizedURL], URL(@"http://example.com//bar"), nil);
-    STAssertEqualObjects([URL(@"http://example.com/foo/..//bar/") standardizedURL], URL(@"http://example.com//bar/"), nil);
+    XCTAssertEqual([URL(@"http://example.com/foo/..//bar") standardizedURL], URL(@"http://example.com//bar"));
+    XCTAssertEqual([URL(@"http://example.com/foo/..//bar/") standardizedURL], URL(@"http://example.com//bar/"));
     
     // But once you have the magic combo of two slashes *before* .. the result seems weird
-    STAssertEqualObjects([URL(@"http://example.com/foo//../bar") standardizedURL], URL(@"http://example.com/foo/bar"), nil);
+    XCTAssertEqual([URL(@"http://example.com/foo//../bar") standardizedURL], URL(@"http://example.com/foo/bar"));
 }
 
 - (void)testParentDirectory;
@@ -283,28 +277,28 @@
     NSURL *test = [home URLByAppendingPathComponent:@"test-file-with-unlikely-filename-0123456789"];
     
     NSURL *parent;
-    STAssertFalse([test getResourceValue:&parent forKey:NSURLParentDirectoryURLKey error:NULL], nil);
+    XCTAssertFalse([test getResourceValue:&parent forKey:NSURLParentDirectoryURLKey error:NULL]);
 }
 
 - (void)testMakingDirectoryURL;
 {
     // URLByAppendingPathComponent:@"" only appends a trailing slash if there isn't one already (as far as I can tell)
-    STAssertEqualObjects([URL(@"http://example.com/test") URLByAppendingPathComponent:@""], URL(@"http://example.com/test/"), nil);
-    STAssertEqualObjects([URL(@"http://example.com/test/") URLByAppendingPathComponent:@""], URL(@"http://example.com/test/"), nil);
-    STAssertEqualObjects([URL(@"http://example.com/test//") URLByAppendingPathComponent:@""], URL(@"http://example.com/test//"), nil);
+    XCTAssertEqual([URL(@"http://example.com/test") URLByAppendingPathComponent:@""], URL(@"http://example.com/test/"));
+    XCTAssertEqual([URL(@"http://example.com/test/") URLByAppendingPathComponent:@""], URL(@"http://example.com/test/"));
+    XCTAssertEqual([URL(@"http://example.com/test//") URLByAppendingPathComponent:@""], URL(@"http://example.com/test//"));
     
     // It's even nice enough to handle query etc.
-    STAssertEqualObjects([URL(@"http://example.com/test?foo=bar") URLByAppendingPathComponent:@""], URL(@"http://example.com/test/?foo=bar"), nil);
-    STAssertEqualObjects([URL(@"http://example.com/test/?foo=bar") URLByAppendingPathComponent:@""], URL(@"http://example.com/test/?foo=bar"), nil);
+    XCTAssertEqual([URL(@"http://example.com/test?foo=bar") URLByAppendingPathComponent:@""], URL(@"http://example.com/test/?foo=bar"));
+    XCTAssertEqual([URL(@"http://example.com/test/?foo=bar") URLByAppendingPathComponent:@""], URL(@"http://example.com/test/?foo=bar"));
     
     // Handles host URLs too
-    STAssertEqualObjects([URL(@"http://example.com/") URLByAppendingPathComponent:@""], URL(@"http://example.com/"), nil);
-    STAssertEqualObjects([URL(@"http://example.com") URLByAppendingPathComponent:@""], URL(@"http://example.com/"), nil);
-    STAssertEqualObjects([URL(@"http://example.com?foo=bar") URLByAppendingPathComponent:@""], URL(@"http://example.com/?foo=bar"), nil);
-    STAssertEqualObjects([URL(@"http://example.com/?foo=bar") URLByAppendingPathComponent:@""], URL(@"http://example.com/?foo=bar"), nil);
+    XCTAssertEqual([URL(@"http://example.com/") URLByAppendingPathComponent:@""], URL(@"http://example.com/"));
+    XCTAssertEqual([URL(@"http://example.com") URLByAppendingPathComponent:@""], URL(@"http://example.com/"));
+    XCTAssertEqual([URL(@"http://example.com?foo=bar") URLByAppendingPathComponent:@""], URL(@"http://example.com/?foo=bar"));
+    XCTAssertEqual([URL(@"http://example.com/?foo=bar") URLByAppendingPathComponent:@""], URL(@"http://example.com/?foo=bar"));
     
     // There's a weird behaviour for directories on disk though; double slash:
-    STAssertEqualObjects([URL(@"file:///Users/Shared") URLByAppendingPathComponent:@""], URL(@"file:///Users/Shared//"), nil);
+    XCTAssertEqual([URL(@"file:///Users/Shared") URLByAppendingPathComponent:@""], URL(@"file:///Users/Shared//"));
 }
 
 @end

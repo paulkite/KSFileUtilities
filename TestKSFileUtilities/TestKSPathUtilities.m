@@ -5,11 +5,12 @@
 //  Created by Abizer Nasir on 22/05/2011.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+//#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "KSPathUtilities.h"
 
 
-@interface TestKSPathUtilities : SenTestCase {
+@interface TestKSPathUtilities : XCTestCase {
 @private
     
 }
@@ -29,7 +30,7 @@
 {
     NSString *result = [path ks_pathRelativeToDirectory:dirPath];
     
-    STAssertTrue([result isEqualToString:expectedResult],
+    XCTAssertTrue([result isEqualToString:expectedResult],
                  @"\'%@\' relative to \'%@\' should be \'%@\' instead of \'%@\'",
                  path,
                  dirPath,
@@ -54,16 +55,16 @@
 
 - (void)testEnumeratePathComponents;
 {
-    STAssertEqualObjects([self componentsOfPath:@"foo/bar"], (@[@"foo", @"bar"]), nil);
-    STAssertEqualObjects([self componentsOfPath:@"foo/bar/"], (@[@"foo", @"bar"]), nil);
-    STAssertEqualObjects([self componentsOfPath:@"foo//bar/"], (@[@"foo", @"bar"]), nil);
+    XCTAssertEqual([self componentsOfPath:@"foo/bar"], (@[@"foo", @"bar"]));
+    XCTAssertEqual([self componentsOfPath:@"foo/bar/"], (@[@"foo", @"bar"]));
+    XCTAssertEqual([self componentsOfPath:@"foo//bar/"], (@[@"foo", @"bar"]));
 
-    STAssertEqualObjects([self componentsOfPath:@"/"], (@[@"/"]), nil);
-    STAssertEqualObjects([self componentsOfPath:@"//"], (@[@"/"]), nil);
-    STAssertEqualObjects([self componentsOfPath:@"/foo/bar"], (@[@"/", @"foo", @"bar"]), nil);
-    STAssertEqualObjects([self componentsOfPath:@"/foo/bar/"], (@[@"/", @"foo", @"bar"]), nil);
-    STAssertEqualObjects([self componentsOfPath:@"/foo//bar/"], (@[@"/", @"foo", @"bar"]), nil);
-    STAssertEqualObjects([self componentsOfPath:@"//foo//bar/"], (@[@"/", @"foo", @"bar"]), nil);
+    XCTAssertEqual([self componentsOfPath:@"/"], (@[@"/"]));
+    XCTAssertEqual([self componentsOfPath:@"//"], (@[@"/"]));
+    XCTAssertEqual([self componentsOfPath:@"/foo/bar"], (@[@"/", @"foo", @"bar"]));
+    XCTAssertEqual([self componentsOfPath:@"/foo/bar/"], (@[@"/", @"foo", @"bar"]));
+    XCTAssertEqual([self componentsOfPath:@"/foo//bar/"], (@[@"/", @"foo", @"bar"]));
+    XCTAssertEqual([self componentsOfPath:@"//foo//bar/"], (@[@"/", @"foo", @"bar"]));
 }
 
 - (NSArray *)componentsOfPath:(NSString *)path;
@@ -170,19 +171,19 @@
 
 - (void)testIsSubpath;
 {
-    STAssertTrue([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/foo"], @"/foo/bar/baz.html is a subpath of of /foo");
-    STAssertTrue([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/foo/"], @"/foo/bar/baz.html is a subpath of of /foo/");
-    STAssertFalse([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/fo"], nil);
+    XCTAssertTrue([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/foo"], @"/foo/bar/baz.html is a subpath of of /foo");
+    XCTAssertTrue([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/foo/"], @"/foo/bar/baz.html is a subpath of of /foo/");
+    XCTAssertFalse([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/fo"]);
     
     // Treat items as being subpaths of themselves
-    STAssertTrue([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/foo/bar/baz.html"], nil);
-    STAssertTrue([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/foo/bar/baz.html/"], nil);
-    STAssertTrue([@"/foo/bar/baz.html/" ks_isSubpathOfPath:@"/foo/bar/baz.html"], nil);
-    STAssertTrue([@"/foo/bar/baz.html/" ks_isSubpathOfPath:@"/foo/bar/baz.html/"], nil);
+    XCTAssertTrue([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/foo/bar/baz.html"]);
+    XCTAssertTrue([@"/foo/bar/baz.html" ks_isSubpathOfPath:@"/foo/bar/baz.html/"]);
+    XCTAssertTrue([@"/foo/bar/baz.html/" ks_isSubpathOfPath:@"/foo/bar/baz.html"]);
+    XCTAssertTrue([@"/foo/bar/baz.html/" ks_isSubpathOfPath:@"/foo/bar/baz.html/"]);
     
     // Make sure similar things aren't mistaken
-    STAssertFalse([@"/foo/abcdefg" ks_isSubpathOfPath:@"/foo/abcd"], nil);
-    STAssertFalse([@"/foo/abcd" ks_isSubpathOfPath:@"/foo/abcdefg"], nil);
+    XCTAssertFalse([@"/foo/abcdefg" ks_isSubpathOfPath:@"/foo/abcd"]);
+    XCTAssertFalse([@"/foo/abcd" ks_isSubpathOfPath:@"/foo/abcdefg"]);
 }
 
 - (void)testStringByIncrementingPath;
@@ -190,14 +191,14 @@
     NSString *path = @"foo/bar.png//";
     path = [path ks_stringByIncrementingPath];
     
-    STAssertTrue([path isEqualToString:@"foo/bar-2.png"],
+    XCTAssertTrue([path isEqualToString:@"foo/bar-2.png"],
                  @"Incremented path \'%@\' should be \'%@\'",
                  path,
                  @"foo/bar-2.png");
     
     path = [path ks_stringByIncrementingPath];
     
-    STAssertTrue([path isEqualToString:@"foo/bar-3.png"],
+    XCTAssertTrue([path isEqualToString:@"foo/bar-3.png"],
                  @"Incremented path \'%@\' should be \'%@\'",
                  path,
                  @"foo/bar-3.png");
@@ -207,14 +208,14 @@
     path = @"foo/bar//";
     path = [path ks_stringByIncrementingPath];
     
-    STAssertTrue([path isEqualToString:@"foo/bar-2"],
+    XCTAssertTrue([path isEqualToString:@"foo/bar-2"],
                  @"Incremented path \'%@\' should be \'%@\'",
                  path,
                  @"foo/bar-2");
     
     path = [path ks_stringByIncrementingPath];
     
-    STAssertTrue([path isEqualToString:@"foo/bar-3"],
+    XCTAssertTrue([path isEqualToString:@"foo/bar-3"],
                  @"Incremented path \'%@\' should be \'%@\'",
                  path,
                  @"foo/bar-3");

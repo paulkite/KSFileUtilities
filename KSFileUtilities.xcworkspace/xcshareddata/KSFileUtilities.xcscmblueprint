@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "F4374302C94F259354D7174C7FAEE12A70EFBBD3",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "73F690BE1B6D95EB211CEAFEF8F4E7FC8A1A292F" : 0,
+    "F4374302C94F259354D7174C7FAEE12A70EFBBD3" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "15AE6E1B-EFAE-48D0-8D98-6DB8C869FCFE",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "73F690BE1B6D95EB211CEAFEF8F4E7FC8A1A292F" : "KSFileUtilities\/IFUnicodeURL",
+    "F4374302C94F259354D7174C7FAEE12A70EFBBD3" : "KSFileUtilities"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "KSFileUtilities",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "KSFileUtilities.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/karelia\/IFUnicodeURL.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "73F690BE1B6D95EB211CEAFEF8F4E7FC8A1A292F"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/karelia\/KSFileUtilities.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F4374302C94F259354D7174C7FAEE12A70EFBBD3"
+    }
+  ]
+}
