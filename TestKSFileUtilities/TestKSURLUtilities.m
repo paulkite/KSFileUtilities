@@ -248,9 +248,9 @@
     XCTAssertEqual([URL(@"http://example.com/foo/bar//") URLByDeletingLastPathComponent], URL(@"http://example.com/foo/bar//../"));
     
     // The CF-level API behaves the same
-    XCTAssertEqual((NSURL *)CFURLCreateCopyDeletingLastPathComponent(NULL, (CFURLRef)URL(@"http://example.com/foo/bar//")), URL(@"http://example.com/foo/bar//../"));
+    XCTAssertEqual(CFBridgingRelease(CFURLCreateCopyDeletingLastPathComponent(NULL, (CFURLRef)URL(@"http://example.com/foo/bar//"))), URL(@"http://example.com/foo/bar//../"));
     
-    
+
     
     // The behaviour makes some sense when faced with a root URL
     XCTAssertEqual([URL(@"http://example.com/") URLByDeletingLastPathComponent], URL(@"http://example.com/../"));
