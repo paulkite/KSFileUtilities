@@ -52,6 +52,13 @@
     [self validateAllowedSchemesWithString:@"test://example.com/" expectedURLString:@"http://example.com/"];
 }
 
+- (void)testIPAddress
+{
+    [self validateAllowedSchemesWithString:@"50.160.242.61" expectedURLString:@"http://50.160.242.61/"];
+    [self validateAllowedSchemesWithString:@"50.160.242.61:4040" expectedURLString:@"http://50.160.242.61:4040/"];
+    [self validateAllowedSchemesWithString:@"50.160.242.61/subsonic" expectedURLString:@"http://50.160.242.61/subsonic"];
+}
+
 - (void)testJavascriptURLs
 {
     KSURLFormatter *formatter = [[KSURLFormatter alloc] init];
@@ -60,6 +67,32 @@
     NSURL *URL = [formatter URLFromString:string];
     XCTAssertEqualObjects(URL.absoluteString, string);
     
+}
+
+- (void)testURLWithPath
+{
+    KSURLFormatter *formatter = [[KSURLFormatter alloc] init];
+    formatter.allowedSchemes = @[@"http", @"https", @"file"];
+
+    XCTAssertEqualObjects([[formatter URLFromString:@"0x0.dk/subsonic"] absoluteString], @"http://0x0.dk/subsonic");
+
+    formatter.appendTrailingSlashToPaths = YES;
+
+    XCTAssertEqualObjects([[formatter URLFromString:@"0x0.dk/subsonic"] absoluteString], @"http://0x0.dk/subsonic/");
+    XCTAssertEqualObjects([[formatter URLFromString:@"0x0.dk/subsonic/"] absoluteString], @"http://0x0.dk/subsonic/");
+}
+
+- (void)testURLWithoutPath
+{
+    KSURLFormatter *formatter = [[KSURLFormatter alloc] init];
+    formatter.allowedSchemes = @[@"http", @"https", @"file"];
+
+    XCTAssertEqualObjects([[formatter URLFromString:@"0x0.dk"] absoluteString], @"http://0x0.dk/");
+
+    formatter.appendTrailingSlashToPaths = YES;
+
+    XCTAssertEqualObjects([[formatter URLFromString:@"0x0.dk"] absoluteString], @"http://0x0.dk/");
+    XCTAssertEqualObjects([[formatter URLFromString:@"0x0.dk/"] absoluteString], @"http://0x0.dk/");
 }
 
 - (void)testPercentEncoding
@@ -74,26 +107,6 @@
     [self validateAllowedSchemesWithString:@"http://exämple.com" expectedURLString:@"http://xn--exmple-cua.com/"];
     [self validateAllowedSchemesWithString:@"exämple.com" expectedURLString:@"http://xn--exmple-cua.com/"];
     [self validateAllowedSchemesWithString:@"exämple" expectedURLString:@"http://xn--exmple-cua.com/"];
-    
-    
-    /* Go the other way
-     */
-    
-    KSURLFormatter *formatter = [[KSURLFormatter alloc] init];
-    
-    XCTAssertEqualObjects([formatter stringForObjectValue:[NSURL URLWithString:@"http://xn--exmple-cua.com/"]], @"http://exämple.com/");
-    
-    // Might as well test something plain for good measure
-    XCTAssertEqualObjects([formatter stringForObjectValue:[NSURL URLWithString:@"http://example.com/"]], @"http://example.com/");
-    
-    // Invalid encodings should be left alone
-    XCTAssertEqualObjects([formatter stringForObjectValue:[NSURL URLWithString:@"http://xn--exmple-cub.com/"]], @"http://xn--exmple-cub.com/");
-    
-    // Make sure subdomains aren't interfering
-    XCTAssertEqualObjects([formatter stringForObjectValue:[NSURL URLWithString:@"http://www.xn--exmple-cua.com/"]], @"http://www.exämple.com/");
-    XCTAssertEqualObjects([formatter stringForObjectValue:[NSURL URLWithString:@"http://www.xn--exmple-cub.com/"]], @"http://www.xn--exmple-cub.com/");
-    
-    
 }
 
 - (void)testDoubleFragment;

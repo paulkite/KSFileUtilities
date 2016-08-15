@@ -180,7 +180,12 @@
     return result;
 }
 
-+ (NSURL *)URLFromString:(NSString *)string defaultScheme:(NSString *)fallbackScheme;
++ (NSURL *)URLFromString:(NSString *)string defaultScheme:(NSString *)fallbackScheme
+{
+    return [self URLFromString:string defaultScheme:fallbackScheme appendTrailingSlashToPaths:NO];
+}
+
++ (NSURL *)URLFromString:(NSString *)string defaultScheme:(NSString *)fallbackScheme appendTrailingSlashToPaths:(BOOL)appendTrailingSlashToPaths
 {
 	//  Tries to interpret the string as a complete URL. If there is no scheme specified, try it as an email address. If that doesn't seem reasonable, combine with fallbackScheme
 
@@ -223,9 +228,22 @@
     
     
     // Append a trailing slash if needed
-    if ([result ks_hasNetworkLocation] && [result.path isEqualToString:@""])
+    if ([result ks_hasNetworkLocation])
     {
-        result = [NSURL URLWithString:@"/" relativeToURL:result].absoluteURL;
+        NSURLComponents *components = [NSURLComponents componentsWithString:result.absoluteString];
+
+        if ([components.path isEqualToString:@""])
+        {
+            components.path = @"/";
+        }
+        else if ([components.path isEqualToString:@"/"] == NO &&
+                 [[components.path substringFromIndex:components.path.length - 1] isEqualToString:@"/"] == NO &&
+                 appendTrailingSlashToPaths)
+        {
+            components.path = [components.path stringByAppendingString:@"/"];
+        }
+        
+        result = components.URL;
     }
 	
     return result;
@@ -255,8 +273,9 @@
     
     if (string.length > 0)
     {
-        result = [KSURLFormatter URLFromString:string defaultScheme:self.defaultScheme];
-        
+        result = [KSURLFormatter URLFromString:string
+                                 defaultScheme:self.defaultScheme
+                    appendTrailingSlashToPaths:self.appendTrailingSlashToPaths];
         
         // Does the URL have no useful resource specified? If so, generate nil URL
         if (result && !result.fileURL)
